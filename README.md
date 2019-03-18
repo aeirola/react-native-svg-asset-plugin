@@ -1,5 +1,7 @@
 # react-native-svg-asset-plugin
 
+[![Build Status](https://travis-ci.org/aeirola/react-native-svg-asset-plugin.svg?branch=master)](https://travis-ci.org/aeirola/react-native-svg-asset-plugin)
+
 Asset plugin for React Native which enables using SVGs with Image components. Works by generating PNGs during compile time, and passing them to the metro transformer.
 
 
