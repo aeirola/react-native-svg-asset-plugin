@@ -6,3 +6,12 @@ node_js:
   - lts/*
   - node
 cache: npm
+deploy:
+  provider: npm
+  email: axel@havukangas.fi
+  api_key:
+    secure: ObIcrviuCmQlL0Nf7B+An/YgN2KuqNoSPPpFf9aL4hc+q/TChi7VAZ2HcCQFLcS9r/ICld2FlPZIMj+Ij595tRqNkYLufvAyMbuyhsvufxOq8HgGrG/KnHdhPY3L67zwj/fEgxmUhu3UsxpWU2Yj4yk5ZvMGJMZTxN14ZC+rA0gHQfi2QfWgHGfi584rM54i/U0Xe3Fpz78/ou/jYhuRItGpl04BsR3NP2m3sshAzHgWito3rVC0Y9nPtYUWcgTDWr7ggtMbrik/GjbXC2S0xLX4sy4zlY7hyXdHk/F/gTbHy9LcEHQ0lHJaRLcSkHR/cu/wnUJRuvbv/M5/HtBaUknSatmOy8uF7nx7N2mbLJ06Acor0oP5dVeuDEhNDEfKrF9+I45zLfP60GYfj9G5RMkBgnNs3suCvWScqZd0Ic1RQq2nB7IU1b10vjHa16KK/sjrCWpCntJgbNr5iiB7k+G6SLJuEw8UW2HJJRGwMTVKUOe8iK7Sk+bwikx9HQWrV1qRmMh7yBOckydGVgL/QyT/yCstoB0jkwrNZGEKqfiS6Eh2NZURRzsRhLdvwcpHetpb77Cb8BKmChb8coXhj7LYlAf+Gc0IPOXadiYT3S577opqgEhuaJ3j9QvLrU00XgCEIKmHjBmFfrY8jNPVpbZAy+9QNQK+fG73+y9PzgA=
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: aeirola/react-native-svg-asset-plugin
