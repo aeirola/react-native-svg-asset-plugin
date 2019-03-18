@@ -3,7 +3,7 @@
  */
 
 const sharp = require('sharp');
-const fs = require('fs').promises;
+const fs = require('fs');
 
 import type { Metadata } from 'sharp';
 import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
@@ -72,7 +72,11 @@ interface OutputImage {
 }
 
 async function readSvg(inputFilePath: string): Promise<InputImage> {
-  const fileBuffer = await fs.readFile(inputFilePath);
+  const fileBuffer = await new Promise((resolve, reject) =>
+    fs.readFile(inputFilePath, (err, data) =>
+      err ? reject(err) : resolve(data),
+    ),
+  );
   const metadata = await sharp(fileBuffer).metadata();
 
   return {
