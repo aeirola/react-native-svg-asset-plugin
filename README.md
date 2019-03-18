@@ -13,6 +13,8 @@ npm install --save-dev react-native-svg-asset-plugin
 
 No dependencies outside of NPM. Uses [sharp](https://github.com/lovell/sharp) for SVG rasterization.
 
+Requires React Native version 0.57 or later to work.
+
 
 ### Configuration
 

@@ -4,7 +4,7 @@
   "description": "Asset plugin for importing SVG images in React Native",
   "main": "lib/index.js",
   "scripts": {
-    "postinstall": "flow-typed install --skip",
+    "prepare": "flow-typed install --skip --ignoreDeps peer",
     "prettier": "prettier --check src/**/*.js",
     "flow": "flow check src/",
     "lint": "npm run prettier && npm run flow",
@@ -20,6 +20,9 @@
   "license": "MIT",
   "dependencies": {
     "sharp": "^0.21.3"
+  },
+  "peerDependencies": {
+    "react-native": ">=0.57"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
