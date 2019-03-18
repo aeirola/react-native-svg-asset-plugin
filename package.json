@@ -2,22 +2,34 @@
   "name": "react-native-svg-asset-plugin",
   "version": "0.0.1",
   "description": "Asset plugin for importing SVG images in React Native",
+  "keywords": [
+    "react-native",
+    "svg"
+  ],
+  "homepage": "https://github.com/aeirola/react-native-svg-asset-plugin",
+  "bugs": {
+    "url": "https://github.com/aeirola/react-native-svg-asset-plugin/issues"
+  },
   "main": "lib/index.js",
   "scripts": {
-    "prepare": "flow-typed install --skip --ignoreDeps peer",
     "prettier": "prettier --check src/**/*.js",
     "flow": "flow check src/",
     "lint": "npm run prettier && npm run flow",
     "jest": "jest src/",
     "test": "npm run lint && npm run jest",
     "build": "babel src/index.js -d lib/",
-    "prepublish": "npm run build"
+    "flow-typed": "flow-typed install --skip --ignoreDeps peer",
+    "prepare": "npm run flow-typed && npm run build"
   },
   "files": [
     "lib/"
   ],
   "author": "Axel Havukangas <axel@havukangas.fi>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aeirola/react-native-svg-asset-plugin.git"
+  },
   "dependencies": {
     "sharp": "^0.21.3"
   },
