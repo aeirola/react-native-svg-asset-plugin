@@ -2,11 +2,14 @@
  * @flow strict-local
  */
 
+const fse = require('fs-extra');
+const path = require('path');
 const sharp = require('sharp');
-const fs = require('fs');
 
 import type { Metadata } from 'sharp';
 import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
+
+const cacheDirName = '.png-cache';
 
 const imageScales = [
   { scale: 1, suffix: '' },
@@ -38,25 +41,32 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
   const inputFilePath = assetData.files[0];
   const inputFileScale = assetData.scales[0];
 
-  const imageData = await readSvg(inputFilePath);
+  const outputDirectory = path.join(assetData.fileSystemLocation, cacheDirName);
+  const outputName = `${assetData.name}:${assetData.hash}`;
+
+  const [imageData, _] = await Promise.all([
+    readSvg(inputFilePath),
+    fse.ensureDir(outputDirectory),
+  ]);
   const outputImages = await Promise.all(
     imageScales.map(imageScale =>
       generatePng(
         imageData,
         imageScale.scale / inputFileScale,
-        `${assetData.fileSystemLocation}/${assetData.name}${
-          imageScale.suffix
-        }.png`,
+        path.join(outputDirectory, `${outputName}${imageScale.suffix}.png`),
       ),
     ),
   );
 
   return {
     ...assetData,
+    fileSystemLocation: outputDirectory,
+    httpServerLocation: `${assetData.httpServerLocation}/${cacheDirName}`,
     width: imageData.metadata.width,
     height: imageData.metadata.height,
     files: outputImages.map(outputImage => outputImage.filePath),
     scales: outputImages.map(outputImage => outputImage.scale),
+    name: outputName,
     type: 'png',
   };
 }
@@ -72,11 +82,7 @@ interface OutputImage {
 }
 
 async function readSvg(inputFilePath: string): Promise<InputImage> {
-  const fileBuffer = await new Promise((resolve, reject) =>
-    fs.readFile(inputFilePath, (err, data) =>
-      err ? reject(err) : resolve(data),
-    ),
-  );
+  const fileBuffer = await fse.readFile(inputFilePath);
   const metadata = await sharp(fileBuffer).metadata();
 
   return {
