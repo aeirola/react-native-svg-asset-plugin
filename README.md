@@ -46,7 +46,7 @@ Just require your SVG files directly into React Native [Image](https://facebook.
 <Image source={require('./assets/image.svg')} />
 ```
 
-Scaled PNGs will be generated alongside the SVG files, so you might want to add a `.gitignore` entry to exclude the generated PNG files from your code repo.
+Scaled PNGs will be generated under the subdirectory `.png-cache` alongside the SVG files, so you might want to add a `.gitignore` entry to exclude the cache directory from your code repo.
 
 
 ## Comparison with react-native-svg

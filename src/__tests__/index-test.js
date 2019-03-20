@@ -19,10 +19,11 @@ describe('react-native-svg-asset-plugin', () => {
     type: 'svg',
   };
 
+  const outputDir = path.join(imageDir, '.png-cache');
   const basePngAsset = {
     __packager_asset: true,
-    fileSystemLocation: imageDir,
-    httpServerLocation: '/assets/images',
+    fileSystemLocation: outputDir,
+    httpServerLocation: '/assets/images/.png-cache',
     hash: '0123456789abcdef0123456789abcdef',
     type: 'png',
   };
@@ -35,37 +36,38 @@ describe('react-native-svg-asset-plugin', () => {
       name: 'red-200x100',
     });
 
+    const outputFileName = 'red-200x100:0123456789abcdef0123456789abcdef';
     expect(pngAsset).toEqual({
       ...basePngAsset,
       width: 200,
       height: 100,
       scales: [1, 2, 3],
       files: [
-        path.join(imageDir, 'red-200x100.png'),
-        path.join(imageDir, 'red-200x100@2x.png'),
-        path.join(imageDir, 'red-200x100@3x.png'),
+        path.join(outputDir, `${outputFileName}.png`),
+        path.join(outputDir, `${outputFileName}@2x.png`),
+        path.join(outputDir, `${outputFileName}@3x.png`),
       ],
-      name: 'red-200x100',
+      name: outputFileName,
     });
 
     await expect(
-      getImageColor(path.join(imageDir, 'red-200x100.png')),
+      getImageColor(path.join(outputDir, `${outputFileName}.png`)),
     ).resolves.toEqual('red');
 
     await expect(
-      getImageSize(path.join(imageDir, 'red-200x100.png')),
+      getImageSize(path.join(outputDir, `${outputFileName}.png`)),
     ).resolves.toEqual({
       width: 200,
       height: 100,
     });
     await expect(
-      getImageSize(path.join(imageDir, 'red-200x100@2x.png')),
+      getImageSize(path.join(outputDir, `${outputFileName}@2x.png`)),
     ).resolves.toEqual({
       width: 200 * 2,
       height: 100 * 2,
     });
     await expect(
-      getImageSize(path.join(imageDir, 'red-200x100@3x.png')),
+      getImageSize(path.join(outputDir, `${outputFileName}@3x.png`)),
     ).resolves.toEqual({
       width: 200 * 3,
       height: 100 * 3,
