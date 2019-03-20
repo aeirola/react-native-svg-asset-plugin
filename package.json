@@ -18,7 +18,7 @@
     "jest": "jest src/",
     "test": "npm run lint && npm run jest",
     "build": "babel src/index.js -d lib/",
-    "flow-typed": "flow-typed install --skip --ignoreDeps peer",
+    "flow-typed": "flow-typed install fs-extra@7 jest@24",
     "prepare": "npm run flow-typed && npm run build"
   },
   "files": [
