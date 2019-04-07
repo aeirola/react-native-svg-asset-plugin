@@ -50,80 +50,84 @@ describe('react-native-svg-asset-plugin', () => {
       name: outputFileName,
     });
 
-    await expect(
-      getImageColor(path.join(outputDir, `${outputFileName}.png`)),
-    ).resolves.toEqual('red');
+    expect(
+      await getImageColor(path.join(outputDir, `${outputFileName}.png`)),
+    ).toEqual('red');
 
-    await expect(
-      getImageSize(path.join(outputDir, `${outputFileName}.png`)),
-    ).resolves.toEqual({
+    expect(
+      await getImageSize(path.join(outputDir, `${outputFileName}.png`)),
+    ).toEqual({
       width: 200,
       height: 100,
     });
-    await expect(
-      getImageSize(path.join(outputDir, `${outputFileName}@2x.png`)),
-    ).resolves.toEqual({
+    expect(
+      await getImageSize(path.join(outputDir, `${outputFileName}@2x.png`)),
+    ).toEqual({
       width: 200 * 2,
       height: 100 * 2,
     });
-    await expect(
-      getImageSize(path.join(outputDir, `${outputFileName}@3x.png`)),
-    ).resolves.toEqual({
+    expect(
+      await getImageSize(path.join(outputDir, `${outputFileName}@3x.png`)),
+    ).toEqual({
       width: 200 * 3,
       height: 100 * 3,
     });
   });
 
-  it('fails on missing images', () => {
-    const pngAsset = assetPlugin({
-      ...baseSvgAsset,
-      scales: [1],
-      files: [path.join(imageDir, 'nonexistent.svg')],
-      name: 'nonexistent',
-    });
-
-    return expect(pngAsset).rejects.toThrow(
-      /^ENOENT: no such file or directory/,
-    );
+  it('fails on missing images', async () => {
+    try {
+      await assetPlugin({
+        ...baseSvgAsset,
+        scales: [1],
+        files: [path.join(imageDir, 'nonexistent.svg')],
+        name: 'nonexistent',
+      });
+    } catch (err) {
+      expect(err.message).toMatch(/^ENOENT: no such file or directory/);
+    }
   });
 
-  it('fails when passed empty scales', () => {
-    const pngAsset = assetPlugin({
-      ...baseSvgAsset,
-      scales: [],
-      files: [],
-      name: 'red-200x100',
-    });
-
-    return expect(pngAsset).rejects.toThrow('No files passed.');
+  it('fails when passed empty scales', async () => {
+    try {
+      await assetPlugin({
+        ...baseSvgAsset,
+        scales: [],
+        files: [],
+        name: 'red-200x100',
+      });
+    } catch (err) {
+      expect(err.message).toEqual('No files passed.');
+    }
   });
 
-  it('fails when passed multiple scales', () => {
-    const pngAsset = assetPlugin({
-      ...baseSvgAsset,
-      scales: [1, 2, 3],
-      files: [
-        path.join(imageDir, 'red-200x100.svg'),
-        path.join(imageDir, 'red-200x100.svg'),
-        path.join(imageDir, 'red-200x100.svg'),
-      ],
-      name: 'red-200x100',
-    });
-
-    return expect(pngAsset).rejects.toThrow(
-      'Multiple SVG scales not supported.',
-    );
+  it('fails when passed multiple scales', async () => {
+    try {
+      await assetPlugin({
+        ...baseSvgAsset,
+        scales: [1, 2, 3],
+        files: [
+          path.join(imageDir, 'red-200x100.svg'),
+          path.join(imageDir, 'red-200x100.svg'),
+          path.join(imageDir, 'red-200x100.svg'),
+        ],
+        name: 'red-200x100',
+      });
+    } catch (err) {
+      expect(err.message).toEqual('Multiple SVG scales not supported.');
+    }
   });
 
-  it('fails when passed scale is not 1', () => {
-    const pngAsset = assetPlugin({
-      ...baseSvgAsset,
-      scales: [0.5],
-      files: [path.join(imageDir, 'red-200x100.svg')],
-      name: 'red-200x100',
-    });
-
-    return expect(pngAsset).rejects.toThrow('Scaled SVGs not supported.');
+  it('fails when passed scale is not 1', async () => {
+    try {
+      await assetPlugin({
+        ...baseSvgAsset,
+        scales: [0.5],
+        files: [path.join(imageDir, 'red-200x100.svg')],
+        name: 'red-200x100',
+      });
+    } catch (err) {
+      expect(err.message).toEqual('Scaled SVGs not supported.');
+    }
   });
 });
 
