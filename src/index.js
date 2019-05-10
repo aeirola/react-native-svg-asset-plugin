@@ -17,6 +17,23 @@ const imageScales = [
   { scale: 3, suffix: '@3x' },
 ];
 
+// First run might cause a xmllib error, run safe warmup
+// See https://github.com/lovell/sharp/issues/1593
+async function warmupSharp(sharp: typeof sharp): Promise<typeof sharp> {
+  try {
+    await sharp(
+      Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" /></svg>`,
+        'utf-8',
+      ),
+    ).metadata();
+  } catch {}
+
+  return sharp;
+}
+
+const asyncWarmSharp = warmupSharp(sharp);
+
 async function reactNativeSvgAssetPlugin(
   assetData: AssetData,
 ): Promise<AssetData> {
@@ -83,7 +100,8 @@ interface OutputImage {
 
 async function readSvg(inputFilePath: string): Promise<InputImage> {
   const fileBuffer = await fse.readFile(inputFilePath);
-  const metadata = await sharp(fileBuffer).metadata();
+  const warmSharp = await asyncWarmSharp;
+  const metadata = await warmSharp(fileBuffer).metadata();
 
   return {
     buffer: fileBuffer,
@@ -99,9 +117,11 @@ async function generatePng(
   if (inputFile.metadata.density === undefined) {
     throw new Error('Input image missing density information');
   }
+  const density = inputFile.metadata.density;
 
-  await sharp(inputFile.buffer, {
-    density: inputFile.metadata.density * scale,
+  const warmSharp = await asyncWarmSharp;
+  await warmSharp(inputFile.buffer, {
+    density: density * scale,
   })
     .png({
       adaptiveFiltering: false,
