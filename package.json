@@ -12,10 +12,10 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "prettier": "prettier --check src/**/*.js",
+    "prettier": "prettier --check src/**/*.js integration_tests/**/*.js",
     "flow": "flow check src/",
     "lint": "npm run prettier && npm run flow",
-    "jest": "jest src/",
+    "jest": "jest src/ integration_tests/",
     "test": "npm run lint && npm run jest",
     "build": "babel src/index.js -d lib/",
     "flow-typed": "flow-typed install fs-extra@7 jest@24",
@@ -42,10 +42,10 @@
     "@babel/core": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-flow": "^7.0.0",
-    "babel-jest": "^24.8.0",
+    "babel-jest": "^24.7.0",
     "flow-bin": "^0.98.1",
     "flow-typed": "^2.5.1",
-    "jest": "^24.8.0",
+    "jest": "^24.7.1",
     "metro": "^0.54.0",
     "prettier": "1.17.0"
   }
