@@ -38,15 +38,15 @@
     "react-native": ">=0.57"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
-    "@babel/preset-flow": "^7.0.0",
-    "babel-jest": "^24.7.0",
-    "flow-bin": "^0.98.1",
-    "flow-typed": "^2.5.1",
-    "jest": "^24.7.1",
-    "metro": "^0.54.0",
-    "prettier": "1.17.0"
+    "@babel/cli": "7.5.5",
+    "@babel/core": "7.5.5",
+    "@babel/preset-env": "7.5.5",
+    "@babel/preset-flow": "7.0.0",
+    "babel-jest": "24.8.0",
+    "flow-bin": "0.103.0",
+    "flow-typed": "2.6.0",
+    "jest": "24.8.0",
+    "metro": "0.55.0",
+    "prettier": "1.18.2"
   }
 }
