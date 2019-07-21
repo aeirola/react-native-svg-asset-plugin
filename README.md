@@ -63,7 +63,7 @@ module.exports = {
       pngCacheDir: '.png-cache',
       scales: [1, 2, 3],
       output: {
-        compressionLevel: 9
+        compressionLevel: 9,
       },
     },
   },
