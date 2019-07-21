@@ -14,5 +14,12 @@ module.exports = {
       },
     }),
     assetPlugins: ['react-native-svg-asset-plugin'],
+    svgAssetPlugin: {
+      cacheDir: '.png-cache',
+      scales: [1, 2, 3],
+      output: {
+        compressionLevel: 1
+      },
+    },
   },
 };

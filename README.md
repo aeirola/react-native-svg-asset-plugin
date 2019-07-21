@@ -5,9 +5,9 @@
 Asset plugin for React Native which enables using SVGs with Image components. Works by generating PNGs during compile time, and passing them to the metro transformer.
 
 
-## Usage
+## Installation
 
-### Installation
+### npm
 
 ```bash
 npm install --save-dev react-native-svg-asset-plugin
@@ -17,10 +17,9 @@ No dependencies outside of NPM. Uses [sharp](https://github.com/lovell/sharp) fo
 
 Requires React Native version 0.57 or later to work. Expo not supported, instead you might want to use [react-native-svg-transformer](https://github.com/kristerkari/react-native-svg-transformer).
 
+### metro
 
-### Configuration
-
-Add `'react-native-svg-asset-plugin'` to the list of `assetPlugins` in your `metro.config.js` file.
+Add `'react-native-svg-asset-plugin'` to the list of `assetPlugins` in your `metro.config.js` file under the `transformer` section.
 
 For example;
 
@@ -40,13 +39,46 @@ module.exports = {
 
 ### Usage
 
-Just require your SVG files directly into React Native [Image](https://facebook.github.io/react-native/docs/image) components. For example:
+Just require your SVG files directly into React Native [Image](https://facebook.github.io/react-native/docs/image) and [ImageBackground](https://facebook.github.io/react-native/docs/imagebackground) components. For example:
 
 ```javascript
 <Image source={require('./assets/image.svg')} />
 ```
 
 Scaled PNGs will be generated under the subdirectory `.png-cache` alongside the SVG files, so you might want to add a `.gitignore` entry to exclude the cache directory from your code repo.
+
+
+### Configuration
+
+You can configure the plugin behaviour through the optional `svgAssetPlugin` field in your `metro.config.js` file under the `transformer` section.
+
+For example;
+
+```javascript
+module.exports = {
+  transformer: {
+    // ...
+    assetPlugins: ['react-native-svg-asset-plugin'],
+    svgAssetPlugin: {
+      pngCacheDir: '.png-cache',
+      scales: [1, 2, 3],
+      output: {
+        compressionLevel: 9
+      },
+    },
+  },
+};
+```
+
+Where the possible configuration values are:
+
+| Field      | Type     | Default        | Description                       |
+|------------|----------|----------------|-----------------------------------|
+| `cacheDir` | string   | `'.png-cache'` | Name of directory to store cached PNGs. |
+| `scales`   | number[] | `[1, 2, 3]`    | PNG image scales to generate for different screen densities. |
+| `output`   | object   | `{}`           | Sharp PNG output [options](http://sharp.pixelplumbing.com/en/v0.22.1/api-output/#png). |
+
+You will need to reset the bundler cache with `react-native start --reset-cache` for configuration changes to take effect for already generated images.
 
 
 ## Comparison with react-native-svg

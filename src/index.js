@@ -6,16 +6,39 @@ const fse = require('fs-extra');
 const path = require('path');
 const sharp = require('sharp');
 
-import type { Metadata } from 'sharp';
+import type { Metadata, PngOptions } from 'sharp';
 import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
 
-const cacheDirName = '.png-cache';
+declare interface Config {
+  cacheDir: string;
+  scales: number[];
+  output: PngOptions;
+}
 
-const imageScales = [
-  { scale: 1, suffix: '' },
-  { scale: 2, suffix: '@2x' },
-  { scale: 3, suffix: '@3x' },
-];
+const defaultConfig: Config = {
+  cacheDir: '.png-cache',
+  scales: [1, 2, 3],
+  output: {},
+};
+
+const config: Config = loadConfig();
+
+function loadConfig(): Config {
+  let metroConfig;
+  try {
+    metroConfig = require(path.join(process.cwd(), 'metro.config.js'));
+  } catch {
+    metroConfig = {};
+  }
+
+  const transformerOptions = metroConfig.transformer || {};
+  const svgAssetPluginOptions = transformerOptions.svgAssetPlugin || {};
+
+  return {
+    ...defaultConfig,
+    ...svgAssetPluginOptions,
+  };
+}
 
 // First run might cause a xmllib error, run safe warmup
 // See https://github.com/lovell/sharp/issues/1593
@@ -58,7 +81,10 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
   const inputFilePath = assetData.files[0];
   const inputFileScale = assetData.scales[0];
 
-  const outputDirectory = path.join(assetData.fileSystemLocation, cacheDirName);
+  const outputDirectory = path.join(
+    assetData.fileSystemLocation,
+    config.cacheDir,
+  );
   const outputName = `${assetData.name}:${assetData.hash}`;
 
   const [imageData, _] = await Promise.all([
@@ -66,11 +92,15 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
     fse.ensureDir(outputDirectory),
   ]);
   const outputImages = await Promise.all(
-    imageScales.map(imageScale =>
+    config.scales.map(imageScale =>
       generatePng(
         imageData,
-        imageScale.scale / inputFileScale,
-        path.join(outputDirectory, `${outputName}${imageScale.suffix}.png`),
+        imageScale / inputFileScale,
+        path.join(
+          outputDirectory,
+          `${outputName}${getScaleSuffix(imageScale)}.png`,
+        ),
+        config.output,
       ),
     ),
   );
@@ -78,7 +108,7 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
   return {
     ...assetData,
     fileSystemLocation: outputDirectory,
-    httpServerLocation: `${assetData.httpServerLocation}/${cacheDirName}`,
+    httpServerLocation: `${assetData.httpServerLocation}/${config.cacheDir}`,
     width: imageData.metadata.width,
     height: imageData.metadata.height,
     files: outputImages.map(outputImage => outputImage.filePath),
@@ -113,6 +143,7 @@ async function generatePng(
   inputFile: InputImage,
   scale: number,
   outputFilePath: string,
+  outputOptions: PngOptions,
 ): Promise<OutputImage> {
   if (inputFile.metadata.density === undefined) {
     throw new Error('Input image missing density information');
@@ -123,16 +154,22 @@ async function generatePng(
   await warmSharp(inputFile.buffer, {
     density: density * scale,
   })
-    .png({
-      adaptiveFiltering: false,
-      compressionLevel: 9,
-    })
+    .png(outputOptions)
     .toFile(outputFilePath);
 
   return {
     filePath: outputFilePath,
     scale: scale,
   };
+}
+
+function getScaleSuffix(scale: number): string {
+  switch (scale) {
+    case 1:
+      return '';
+    default:
+      return `@${scale}x`;
+  }
 }
 
 const assetDataPlugin: AssetDataPlugin = reactNativeSvgAssetPlugin;
