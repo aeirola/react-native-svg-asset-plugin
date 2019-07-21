@@ -1,6 +1,6 @@
 {
   "name": "react-native-svg-asset-plugin",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Asset plugin for importing SVG images in React Native",
   "keywords": [
     "react-native",
