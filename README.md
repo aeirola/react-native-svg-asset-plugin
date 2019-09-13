@@ -4,6 +4,7 @@
 
 Asset plugin for React Native which enables using SVGs with Image components. Works by generating PNGs during compile time, and passing them to the metro transformer.
 
+:iphone: If you also want to use SVG images for your application launcher icons, you might want to check out [react-native-svg-app-icon](https://github.com/aeirola/react-native-svg-app-icon).
 
 ## Installation
 
