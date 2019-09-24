@@ -36,7 +36,7 @@ describe('react-native-svg-asset-plugin', () => {
       name: 'red-200x100',
     });
 
-    const outputFileName = 'red-200x100:0123456789abcdef0123456789abcdef';
+    const outputFileName = 'red-200x100-0123456789abcdef0123456789abcdef';
     expect(pngAsset).toEqual({
       ...basePngAsset,
       width: 200,

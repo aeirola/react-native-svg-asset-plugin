@@ -85,7 +85,7 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
     assetData.fileSystemLocation,
     config.cacheDir,
   );
-  const outputName = `${assetData.name}:${assetData.hash}`;
+  const outputName = `${assetData.name}-${assetData.hash}`;
 
   const [imageData, _] = await Promise.all([
     readSvg(inputFilePath),
