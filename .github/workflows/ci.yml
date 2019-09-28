@@ -13,8 +13,8 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-        node_version: [8, 10, 12]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        node_version: [8.16, 10, 12]
     name: Test ${{ matrix.os }} node${{ matrix.node_version }}
     runs-on: ${{ matrix.os }}
     steps:

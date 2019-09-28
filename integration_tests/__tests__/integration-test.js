@@ -5,6 +5,14 @@ const Metro = require('metro');
 const path = require('path');
 
 describe('react-native-svg-asset-plugin integration test', () => {
+  jest.setTimeout(20 * 1000);
+
+  // Skip tests until https://github.com/facebook/metro/pull/454
+  if (process.platform === 'win32') {
+    it.skip('returns svg assets as pngs', () => {});
+    return;
+  }
+
   it('returns svg assets as pngs', async () => {
     const config = await Metro.loadConfig({
       config: require.resolve('../metro.config.js'),
