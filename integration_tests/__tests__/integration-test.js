@@ -10,6 +10,9 @@ describe('react-native-svg-asset-plugin integration test', () => {
       config: require.resolve('../metro.config.js'),
     });
 
+    // Workaround until https://github.com/facebook/metro/pull/454
+    config.resolver.blacklistRE = /(.*\/__tests__\/.*)/;
+
     const result = await Metro.runBuild(config, {
       entry: 'TestBundle.js',
     });
