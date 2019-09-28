@@ -9,6 +9,7 @@ describe('react-native-svg-asset-plugin integration test', () => {
 
   // Skip tests until https://github.com/facebook/metro/pull/454
   if (process.platform === 'win32') {
+    it.skip('returns svg assets as pngs', () => {});
     return;
   }
 
