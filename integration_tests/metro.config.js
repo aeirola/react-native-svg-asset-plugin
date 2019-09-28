@@ -13,6 +13,13 @@ module.exports = {
   ],
   resolver: {
     useWatchman: false,
+    // Workaround for https://github.com/facebook/metro/issues/453
+    blacklistRE: [
+      /node_modules[\/\\]react[\/\\]dist[\/\\].*/,
+      /website\/node_modules\/.*/,
+      /heapCapture\/bundle\.js/,
+      /.*\/__tests__\/.*/
+    ],
   },
   transformer: {
     assetPlugins: [path.resolve(__dirname, '..', 'src')],
