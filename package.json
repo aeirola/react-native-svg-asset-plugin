@@ -12,14 +12,14 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "prettier": "prettier --check src/**/*.js integration_tests/**/*.js",
-    "flow": "flow check",
-    "lint": "npm run prettier && npm run flow",
-    "jest": "jest src/ integration_tests/",
-    "test": "npm run lint && npm run jest",
-    "build": "babel src/index.js -d lib/",
-    "flow-typed": "flow-typed install fs-extra@7 jest@24",
-    "prepare": "npm run flow-typed && npm run build"
+    "prepare": "npm-run-all --parallel prepare:*",
+    "prepare:flow-typed": "flow-typed install fs-extra@7 jest@24",
+    "prepare:build": "babel src/index.js -d lib/",
+    "test": "npm-run-all test:*",
+    "test:lint": "npm-run-all --parallel test:lint:*",
+    "test:lint:prettier": "prettier --check src/**/*.js integration_tests/**/*.js",
+    "test:lint:flow": "flow check",
+    "test:unit": "jest src/ integration_tests/"
   },
   "files": [
     "lib/"
@@ -47,6 +47,7 @@
     "flow-typed": "2.6.0",
     "jest": "24.8.0",
     "metro": "0.55.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "1.18.2"
   }
 }
