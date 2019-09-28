@@ -6,7 +6,7 @@
  * @flow
  */
 
-import React, {Fragment} from 'react';
+import React from 'react';
 import {
   Image,
   SafeAreaView,
@@ -25,9 +25,9 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const App = () => {
+const App: () => React$Node = () => {
   return (
-    <Fragment>
+    <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         <ScrollView
@@ -78,7 +78,7 @@ const App = () => {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </Fragment>
+    </>
   );
 };
 
