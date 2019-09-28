@@ -8,6 +8,8 @@ const sharp = require('sharp');
 const assetPlugin = require('../index');
 
 describe('react-native-svg-asset-plugin', () => {
+  jest.setTimeout(20 * 1000);
+
   const imageDir = path.join(__dirname, 'images');
   const baseSvgAsset = {
     __packager_asset: true,

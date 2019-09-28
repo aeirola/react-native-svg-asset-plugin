@@ -13,7 +13,7 @@
   "main": "lib/index.js",
   "scripts": {
     "prettier": "prettier --check src/**/*.js integration_tests/**/*.js",
-    "flow": "flow check src",
+    "flow": "flow check",
     "lint": "npm run prettier && npm run flow",
     "jest": "jest src/ integration_tests/",
     "test": "npm run lint && npm run jest",
