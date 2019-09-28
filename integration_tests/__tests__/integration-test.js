@@ -7,13 +7,15 @@ const path = require('path');
 describe('react-native-svg-asset-plugin integration test', () => {
   jest.setTimeout(20 * 1000);
 
+  // Skip tests until https://github.com/facebook/metro/pull/454
+  if (process.platform === 'win32') {
+    return;
+  }
+
   it('returns svg assets as pngs', async () => {
     const config = await Metro.loadConfig({
       config: require.resolve('../metro.config.js'),
     });
-
-    // Workaround until https://github.com/facebook/metro/pull/454
-    config.resolver.blacklistRE = /(.*\/__tests__\/.*)/;
 
     const result = await Metro.runBuild(config, {
       entry: 'TestBundle.js',
