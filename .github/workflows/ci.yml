@@ -24,6 +24,10 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: npm ci
       - run: npm test
+      - uses: actions/upload-artifact@master
+        with:
+          name: integration-test-png-cache
+          path: integration_tests/bundles/images/.png-cache
 
   publish:
     needs: test
