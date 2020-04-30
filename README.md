@@ -78,6 +78,8 @@ Where the possible configuration values are:
 | `cacheDir` | string   | `'.png-cache'` | Name of directory to store cached PNGs. |
 | `scales`   | number[] | `[1, 2, 3]`    | PNG image scales to generate for different screen densities. |
 | `output`   | object   | `{}`           | Sharp PNG output [options](http://sharp.pixelplumbing.com/en/v0.22.1/api-output/#png). |
+| `ignorePatterns`   | string[]   | `[]`           | Array of glob patterns matched against the source file path relative to the project folder. Matching files will be ignored (Cannot be used together with `includePatterns`).  |
+| `includePatterns`   | string[]   | `[]`           | Array of glob patterns matched against the source file relative to the project folder. Only matching files will be processed (Cannot be used together with `ignorePatterns`). |
 
 You will need to reset the bundler cache with `react-native start --reset-cache` for configuration changes to take effect for already generated images.
 

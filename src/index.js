@@ -5,6 +5,7 @@
 const fse = require('fs-extra');
 const path = require('path');
 const sharp = require('sharp');
+const ignore = require('ignore');
 
 import type { Metadata, PngOptions } from 'sharp';
 import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
@@ -13,12 +14,20 @@ declare interface Config {
   cacheDir: string;
   scales: number[];
   output: PngOptions;
+  ignorePatterns: string[];
+  includePatterns: string[];
+}
+
+declare interface Ignore {
+  ignores: string => boolean;
 }
 
 const defaultConfig: Config = {
   cacheDir: '.png-cache',
   scales: [1, 2, 3],
   output: {},
+  ignorePatterns: [],
+  includePatterns: [],
 };
 
 const config: Config = loadConfig();
@@ -34,10 +43,51 @@ function loadConfig(): Config {
   const transformerOptions = metroConfig.transformer || {};
   const svgAssetPluginOptions = transformerOptions.svgAssetPlugin || {};
 
-  return {
+  const config = {
     ...defaultConfig,
     ...svgAssetPluginOptions,
   };
+
+  const hasIgnore = config.ignorePatterns && config.ignorePatterns.length;
+  const hasInclude = config.includePatterns && config.includePatterns.length;
+  if (hasIgnore && hasInclude) {
+    throw new Error(
+      'Invalid configuration: ignorePatterns and includePatterns cannot be used together.',
+    );
+  }
+
+  return config;
+}
+
+const ig: Ignore = createIgnore();
+
+function createIgnore(): Ignore {
+  const _ig = ignore();
+  function makeRelative(absolutePath) {
+    return path.relative(process.cwd(), absolutePath);
+  }
+
+  if (config.ignorePatterns.length) {
+    _ig.add(config.ignorePatterns);
+    return {
+      ignores(path) {
+        return _ig.ignores(makeRelative(path));
+      },
+    };
+  } else if (config.includePatterns.length) {
+    _ig.add(config.includePatterns);
+    return {
+      ignores(path) {
+        return !_ig.ignores(makeRelative(path));
+      },
+    };
+  } else {
+    return {
+      ignores(path) {
+        return false;
+      },
+    };
+  }
 }
 
 // First run might cause a xmllib error, run safe warmup
@@ -80,6 +130,10 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
 
   const inputFilePath = assetData.files[0];
   const inputFileScale = assetData.scales[0];
+
+  if (ig.ignores(inputFilePath)) {
+    return assetData;
+  }
 
   const outputDirectory = path.join(
     assetData.fileSystemLocation,
