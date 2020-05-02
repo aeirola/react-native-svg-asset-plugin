@@ -5,7 +5,6 @@
 const fse = require('fs-extra');
 const path = require('path');
 const sharp = require('sharp');
-const ignore = require('ignore');
 
 import type { Metadata, PngOptions } from 'sharp';
 import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
@@ -14,20 +13,18 @@ declare interface Config {
   cacheDir: string;
   scales: number[];
   output: PngOptions;
-  ignorePatterns: string[];
-  includePatterns: string[];
+  +ignoreRegex: ?RegExp;
+  +includeRegex: ?RegExp;
 }
 
-declare interface Ignore {
-  ignores: string => boolean;
-}
+declare type IgnoreFunction = (path: string) => boolean;
 
 const defaultConfig: Config = {
   cacheDir: '.png-cache',
   scales: [1, 2, 3],
   output: {},
-  ignorePatterns: [],
-  includePatterns: [],
+  ignoreRegex: null,
+  includeRegex: null,
 };
 
 const config: Config = loadConfig();
@@ -48,44 +45,34 @@ function loadConfig(): Config {
     ...svgAssetPluginOptions,
   };
 
-  const hasIgnore = config.ignorePatterns && config.ignorePatterns.length;
-  const hasInclude = config.includePatterns && config.includePatterns.length;
+  const hasIgnore = config.ignoreRegex && config.ignoreRegex instanceof RegExp;
+  const hasInclude =
+    config.includeRegex && config.includeRegex instanceof RegExp;
   if (hasIgnore && hasInclude) {
     throw new Error(
-      'Invalid configuration: ignorePatterns and includePatterns cannot be used together.',
+      'Invalid configuration: ignoreRegex and includeRegex cannot be used together.',
     );
   }
 
   return config;
 }
 
-const ig: Ignore = createIgnore();
+const ignores: IgnoreFunction = createIgnore();
 
-function createIgnore(): Ignore {
-  const _ig = ignore();
-  function makeRelative(absolutePath) {
-    return path.relative(process.cwd(), absolutePath);
-  }
-
-  if (config.ignorePatterns.length) {
-    _ig.add(config.ignorePatterns);
-    return {
-      ignores(path) {
-        return _ig.ignores(makeRelative(path));
-      },
+function createIgnore(): IgnoreFunction {
+  if (config.ignoreRegex instanceof RegExp) {
+    const regex = config.ignoreRegex;
+    return function ignores(path) {
+      return regex.test(path);
     };
-  } else if (config.includePatterns.length) {
-    _ig.add(config.includePatterns);
-    return {
-      ignores(path) {
-        return !_ig.ignores(makeRelative(path));
-      },
+  } else if (config.includeRegex instanceof RegExp) {
+    const regex = config.includeRegex;
+    return function ignores(path) {
+      return !regex.test(path);
     };
   } else {
-    return {
-      ignores(path) {
-        return false;
-      },
+    return function ignores(path) {
+      return false;
     };
   }
 }
@@ -131,7 +118,7 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
   const inputFilePath = assetData.files[0];
   const inputFileScale = assetData.scales[0];
 
-  if (ig.ignores(inputFilePath)) {
+  if (ignores(inputFilePath)) {
     return assetData;
   }
 
