@@ -14,7 +14,6 @@ declare interface Config {
   scales: number[];
   output: PngOptions;
   +ignoreRegex: ?RegExp;
-  +includeRegex: ?RegExp;
 }
 
 declare type IgnoreFunction = (path: string) => boolean;
@@ -24,7 +23,6 @@ const defaultConfig: Config = {
   scales: [1, 2, 3],
   output: {},
   ignoreRegex: null,
-  includeRegex: null,
 };
 
 const config: Config = loadConfig();
@@ -45,15 +43,6 @@ function loadConfig(): Config {
     ...svgAssetPluginOptions,
   };
 
-  const hasIgnore = config.ignoreRegex && config.ignoreRegex instanceof RegExp;
-  const hasInclude =
-    config.includeRegex && config.includeRegex instanceof RegExp;
-  if (hasIgnore && hasInclude) {
-    throw new Error(
-      'Invalid configuration: ignoreRegex and includeRegex cannot be used together.',
-    );
-  }
-
   return config;
 }
 
@@ -64,11 +53,6 @@ function createIgnore(): IgnoreFunction {
     const regex = config.ignoreRegex;
     return function ignores(path) {
       return regex.test(path);
-    };
-  } else if (config.includeRegex instanceof RegExp) {
-    const regex = config.includeRegex;
-    return function ignores(path) {
-      return !regex.test(path);
     };
   } else {
     return function ignores(path) {
@@ -97,7 +81,8 @@ const asyncWarmSharp = warmupSharp(sharp);
 async function reactNativeSvgAssetPlugin(
   assetData: AssetData,
 ): Promise<AssetData> {
-  if (assetData.type === 'svg') {
+  const filePath = assetData.files.length ? assetData.files[0] : '';
+  if (assetData.type === 'svg' && !ignores(filePath)) {
     return convertSvg(assetData);
   } else {
     return assetData;
@@ -117,10 +102,6 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
 
   const inputFilePath = assetData.files[0];
   const inputFileScale = assetData.scales[0];
-
-  if (ignores(inputFilePath)) {
-    return assetData;
-  }
 
   const outputDirectory = path.join(
     assetData.fileSystemLocation,
