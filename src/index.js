@@ -13,12 +13,16 @@ declare interface Config {
   cacheDir: string;
   scales: number[];
   output: PngOptions;
+  +ignoreRegex: ?RegExp;
 }
+
+declare type IgnoreFunction = (path: string) => boolean;
 
 const defaultConfig: Config = {
   cacheDir: '.png-cache',
   scales: [1, 2, 3],
   output: {},
+  ignoreRegex: null,
 };
 
 const config: Config = loadConfig();
@@ -34,10 +38,27 @@ function loadConfig(): Config {
   const transformerOptions = metroConfig.transformer || {};
   const svgAssetPluginOptions = transformerOptions.svgAssetPlugin || {};
 
-  return {
+  const config = {
     ...defaultConfig,
     ...svgAssetPluginOptions,
   };
+
+  return config;
+}
+
+const ignores: IgnoreFunction = createIgnore();
+
+function createIgnore(): IgnoreFunction {
+  if (config.ignoreRegex instanceof RegExp) {
+    const regex = config.ignoreRegex;
+    return function ignores(path) {
+      return regex.test(path);
+    };
+  } else {
+    return function ignores(path) {
+      return false;
+    };
+  }
 }
 
 // First run might cause a xmllib error, run safe warmup
@@ -60,7 +81,8 @@ const asyncWarmSharp = warmupSharp(sharp);
 async function reactNativeSvgAssetPlugin(
   assetData: AssetData,
 ): Promise<AssetData> {
-  if (assetData.type === 'svg') {
+  const filePath = assetData.files.length ? assetData.files[0] : '';
+  if (assetData.type === 'svg' && !ignores(filePath)) {
     return convertSvg(assetData);
   } else {
     return assetData;
