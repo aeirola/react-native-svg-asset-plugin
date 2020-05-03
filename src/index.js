@@ -114,7 +114,7 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
     fse.ensureDir(outputDirectory),
   ]);
   const outputImages = await Promise.all(
-    config.scales.map(imageScale =>
+    config.scales.map((imageScale) =>
       generatePng(
         imageData,
         imageScale / inputFileScale,
@@ -133,8 +133,8 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
     httpServerLocation: `${assetData.httpServerLocation}/${config.cacheDir}`,
     width: imageData.metadata.width,
     height: imageData.metadata.height,
-    files: outputImages.map(outputImage => outputImage.filePath),
-    scales: outputImages.map(outputImage => outputImage.scale),
+    files: outputImages.map((outputImage) => outputImage.filePath),
+    scales: outputImages.map((outputImage) => outputImage.scale),
     name: outputName,
     type: 'png',
   };

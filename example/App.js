@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  *
  * @format
- * @flow
+ * @flow strict-local
  */
 
 import React from 'react';
@@ -51,9 +51,11 @@ const App: () => React$Node = () => {
               <Text style={styles.sectionTitle}>SVG images</Text>
               <Image source={require('./assets/React-icon.svg')} />
               <Text style={styles.sectionDescription}>
-                After installing <Text style={styles.highlight}>
-                react-native-svg-asset-plugin</Text>, you can directly use SVG
-                images similarly to PNG images.
+                After installing{' '}
+                <Text style={styles.highlight}>
+                  react-native-svg-asset-plugin
+                </Text>
+                , you can directly use SVG images similarly to PNG images.
               </Text>
             </View>
             <View style={styles.sectionContainer}>
