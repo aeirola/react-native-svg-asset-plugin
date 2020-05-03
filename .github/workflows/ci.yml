@@ -14,11 +14,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        node_version: [8.16, 10, 12]
+        node_version: [10, 12, 14]
     name: Test ${{ matrix.os }} node${{ matrix.node_version }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node_version }}
@@ -34,10 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 14
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - if: github.event_name != 'push' || !startsWith(github.event.ref, 'refs/tags')
