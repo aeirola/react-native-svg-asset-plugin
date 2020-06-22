@@ -12,6 +12,7 @@ import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
 declare interface Config {
   cacheDir: string;
   scales: number[];
+  scaleMultiplicator: number;
   output: PngOptions;
   +ignoreRegex: ?RegExp;
 }
@@ -21,6 +22,7 @@ declare type IgnoreFunction = (path: string) => boolean;
 const defaultConfig: Config = {
   cacheDir: '.png-cache',
   scales: [1, 2, 3],
+  scaleMultiplicator: 1,
   output: {},
   ignoreRegex: null,
 };
@@ -174,7 +176,7 @@ async function generatePng(
 
   const warmSharp = await asyncWarmSharp;
   await warmSharp(inputFile.buffer, {
-    density: density * scale,
+    density: density * scale * config.scaleMultiplicator,
   })
     .png(outputOptions)
     .toFile(outputFilePath);
