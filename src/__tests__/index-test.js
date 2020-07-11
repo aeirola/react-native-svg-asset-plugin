@@ -15,8 +15,8 @@ describe('react-native-svg-asset-plugin', () => {
     __packager_asset: true,
     fileSystemLocation: imageDir,
     httpServerLocation: '/assets/images',
-    width: undefined,
-    height: undefined,
+    width: 200,
+    height: 100,
     hash: '0123456789abcdef0123456789abcdef',
     type: 'svg',
   };
