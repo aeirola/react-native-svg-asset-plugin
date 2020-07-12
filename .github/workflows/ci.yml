@@ -14,8 +14,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        node_version: [10, 12, 14]
-    name: Test ${{ matrix.os }} node${{ matrix.node_version }}
+        node_version: [10, 14]
+        metro_version: ['0.47.1', '0.59.0']
+        exclude:
+          # https://github.com/facebook/metro/pull/468
+          - os: windows-latest
+            metro_version: '0.47.1'
+    name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -23,6 +28,7 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - run: npm ci
+      - run: npm install --dev --no-save metro@${{ matrix.metro_version }}
       - run: npm test
       - uses: actions/upload-artifact@master
         with:
