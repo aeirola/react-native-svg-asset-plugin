@@ -4,89 +4,45 @@
 
 const fse = require('fs-extra');
 const path = require('path');
-const sharp = require('sharp');
 
 import type { Metadata, PngOptions } from 'sharp';
 import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
 
-declare interface Config {
-  cacheDir: string;
-  scales: number[];
-  output: PngOptions;
-  +ignoreRegex: ?RegExp;
-}
+const cache = require('./cache');
+const config = require('./config');
+const sharp = require('./sharp');
+const funcUtils = require('./utils/func');
+const fsUtils = require('./utils/fs');
 
-declare type IgnoreFunction = (path: string) => boolean;
+import type { Config } from './config';
 
-const defaultConfig: Config = {
-  cacheDir: '.png-cache',
-  scales: [1, 2, 3],
-  output: {},
-  ignoreRegex: null,
-};
-
-const config: Config = loadConfig();
-
-function loadConfig(): Config {
-  let metroConfig;
-  try {
-    metroConfig = require(path.join(process.cwd(), 'metro.config.js'));
-  } catch {
-    metroConfig = {};
-  }
-
-  const transformerOptions = metroConfig.transformer || {};
-  const svgAssetPluginOptions = transformerOptions.svgAssetPlugin || {};
-
-  const config = {
-    ...defaultConfig,
-    ...svgAssetPluginOptions,
-  };
-
-  return config;
-}
-
-const ignores: IgnoreFunction = createIgnore();
-
-function createIgnore(): IgnoreFunction {
-  if (config.ignoreRegex instanceof RegExp) {
-    const regex = config.ignoreRegex;
-    return function ignores(path) {
-      return regex.test(path);
-    };
-  } else {
-    return function ignores(path) {
-      return false;
-    };
-  }
-}
-
-// First run might cause a xmllib error, run safe warmup
-// See https://github.com/lovell/sharp/issues/1593
-async function warmupSharp(sharp: typeof sharp): Promise<typeof sharp> {
-  try {
-    await sharp(
-      Buffer.from(
-        `<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" /></svg>`,
-        'utf-8',
-      ),
-    ).metadata();
-  } catch {}
-
-  return sharp;
-}
-
-const asyncWarmSharp = warmupSharp(sharp);
+const asyncConfig: Promise<Config> = config.load();
 
 async function reactNativeSvgAssetPlugin(
   assetData: AssetData,
 ): Promise<AssetData> {
   const filePath = assetData.files.length ? assetData.files[0] : '';
-  if (assetData.type === 'svg' && !ignores(filePath)) {
+  if (await shouldConvertFile(assetData, filePath)) {
     return convertSvg(assetData);
   } else {
     return assetData;
   }
+}
+
+async function shouldConvertFile(
+  assetData: AssetData,
+  filePath: string,
+): Promise<boolean> {
+  if (assetData.type !== 'svg') {
+    return false;
+  }
+
+  const ignoreRegex = (await asyncConfig).ignoreRegex;
+  if (ignoreRegex && ignoreRegex.test(filePath)) {
+    return false;
+  }
+
+  return true;
 }
 
 async function convertSvg(assetData: AssetData): Promise<AssetData> {
@@ -103,20 +59,19 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
   const inputFilePath = assetData.files[0];
   const inputFileScale = assetData.scales[0];
 
+  const config = await asyncConfig;
   const outputDirectory = path.join(
     assetData.fileSystemLocation,
     config.cacheDir,
   );
   const outputName = `${assetData.name}-${assetData.hash}`;
 
-  const [imageData, _] = await Promise.all([
-    readSvg(inputFilePath),
-    fse.ensureDir(outputDirectory),
-  ]);
+  await fse.ensureDir(outputDirectory);
+  const imageLoader = createimageLoader(inputFilePath);
   const outputImages = await Promise.all(
     config.scales.map((imageScale) =>
-      generatePng(
-        imageData,
+      ensurePngUpToDate(
+        imageLoader,
         imageScale / inputFileScale,
         path.join(
           outputDirectory,
@@ -131,14 +86,14 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
     ...assetData,
     fileSystemLocation: outputDirectory,
     httpServerLocation: `${assetData.httpServerLocation}/${config.cacheDir}`,
-    width: imageData.metadata.width,
-    height: imageData.metadata.height,
     files: outputImages.map((outputImage) => outputImage.filePath),
     scales: outputImages.map((outputImage) => outputImage.scale),
     name: outputName,
     type: 'png',
   };
 }
+
+type InputImageLoader = () => Promise<InputImage>;
 
 interface InputImage {
   buffer: Buffer;
@@ -150,39 +105,74 @@ interface OutputImage {
   scale: number;
 }
 
-async function readSvg(inputFilePath: string): Promise<InputImage> {
-  const fileBuffer = await fse.readFile(inputFilePath);
-  const warmSharp = await asyncWarmSharp;
-  const metadata = await warmSharp(fileBuffer).metadata();
+/**
+ * Creates an image loader for input file.
+ * This provides lazy cached loading of image data.
+ */
+function createimageLoader(inputFilePath: string): InputImageLoader {
+  return funcUtils.memo(async () => {
+    const [fileBuffer, loadedSharp] = await Promise.all([
+      fse.readFile(inputFilePath),
+      sharp.load(),
+    ]);
 
-  return {
-    buffer: fileBuffer,
-    metadata: metadata,
-  };
+    const metadata = await loadedSharp(fileBuffer).metadata();
+
+    return {
+      buffer: fileBuffer,
+      metadata: metadata,
+    };
+  });
 }
 
-async function generatePng(
-  inputFile: InputImage,
+/**
+ * Ensures that the resultign PNG file exists on the fileystem.
+ *
+ * In case the file does not exist yet, or it is older than the
+ * current configuration, it will be generated.
+ *
+ * Otherwise the existing file will be left in place, and its
+ * last modified time will be updated.
+ */
+async function ensurePngUpToDate(
+  imageLoader: InputImageLoader,
   scale: number,
   outputFilePath: string,
   outputOptions: PngOptions,
 ): Promise<OutputImage> {
-  if (inputFile.metadata.density === undefined) {
-    throw new Error('Input image missing density information');
+  if (await cache.isFileOutdated(outputFilePath, await asyncConfig)) {
+    const inputFile = await imageLoader();
+    await generatePng(inputFile, scale, outputFilePath, outputOptions);
+  } else {
+    await fsUtils.updateLastModifiedTime(outputFilePath);
   }
-  const density = inputFile.metadata.density;
-
-  const warmSharp = await asyncWarmSharp;
-  await warmSharp(inputFile.buffer, {
-    density: density * scale,
-  })
-    .png(outputOptions)
-    .toFile(outputFilePath);
 
   return {
     filePath: outputFilePath,
     scale: scale,
   };
+}
+
+/**
+ * Generates a PNG file from a loaded SVG file.
+ */
+async function generatePng(
+  inputFile: InputImage,
+  scale: number,
+  outputFilePath: string,
+  outputOptions: PngOptions,
+): Promise<void> {
+  if (inputFile.metadata.density === undefined) {
+    throw new Error('Input image missing density information');
+  }
+  const density = inputFile.metadata.density;
+
+  const loadedSharp = await sharp.load();
+  await loadedSharp(inputFile.buffer, {
+    density: density * scale,
+  })
+    .png(outputOptions)
+    .toFile(outputFilePath);
 }
 
 function getScaleSuffix(scale: number): string {

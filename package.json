@@ -14,7 +14,7 @@
   "scripts": {
     "prepare": "npm-run-all --parallel prepare:*",
     "prepare:flow-typed": "flow-typed install fs-extra@7 jest@25",
-    "prepare:build": "babel src/index.js -d lib/",
+    "prepare:build": "babel src/ --ignore '**/__tests__' -d lib/",
     "test": "npm-run-all test:*",
     "test:lint": "npm-run-all --parallel test:lint:*",
     "test:lint:prettier": "prettier --check src/**/*.js integration_tests/**/*.js",
