@@ -30,10 +30,10 @@ jobs:
       - run: npm ci
       - run: npm install --dev --no-save metro@${{ matrix.metro_version }}
       - run: npm test
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v2
         with:
           name: integration-test-png-cache
-          path: integration_tests/bundles/images/.png-cache
+          path: integration_tests/bundles/images/.png-cache/
 
   publish:
     needs: test
