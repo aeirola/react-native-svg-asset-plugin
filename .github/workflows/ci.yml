@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         node_version: [10, 14]
-        metro_version: ['0.47.1', '0.59.0']
+        metro_version: ['0.47.1', '0.61.0']
         exclude:
           # https://github.com/facebook/metro/pull/468
           - os: windows-latest
