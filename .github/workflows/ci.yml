@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         node_version: [10, 14]
-        metro_version: ['0.47.1', '0.59.0']
+        metro_version: ['0.47.1', '0.61.0']
         exclude:
           # https://github.com/facebook/metro/pull/468
           - os: windows-latest
@@ -30,10 +30,10 @@ jobs:
       - run: npm ci
       - run: npm install --dev --no-save metro@${{ matrix.metro_version }}
       - run: npm test
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v2
         with:
           name: integration-test-png-cache
-          path: integration_tests/bundles/images/.png-cache
+          path: integration_tests/bundles/images/.png-cache/
 
   publish:
     needs: test
