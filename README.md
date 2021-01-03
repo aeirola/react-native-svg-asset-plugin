@@ -85,7 +85,7 @@ You will need to reset the bundler cache with `react-native start --reset-cache`
 
 ## Comparison with react-native-svg
 
-Most alternative ways of displaying SVG content in React Native apps are based on the [react-native-svg](https://github.com/react-native-community/react-native-svg) library, which provides runtime rendering of SVG images. react-native-svg-asset-plugin works differently by rasetrizing the vector images to PNGs during compile time, and using the native image rendering APIs.
+Most alternative ways of displaying SVG content in React Native apps are based on the [react-native-svg](https://github.com/react-native-community/react-native-svg) library, which provides runtime rendering of SVG images. react-native-svg-asset-plugin works differently by rasterizing the vector images to PNGs during compile time, and using the native image rendering APIs.
 
 |                      |  react-native-svg  |  react-native-svg-asset-plugin  |
 |----------------------|:------------------:|:-------------------------------:|
