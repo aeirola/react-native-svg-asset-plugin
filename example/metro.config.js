@@ -1,25 +1,9 @@
-/**
- * Metro configuration for React Native
- * https://github.com/facebook/react-native
- *
- * @format
- */
+// Learn more https://docs.expo.io/guides/customizing-metro
+const { getDefaultConfig } = require('expo/metro-config');
 
-module.exports = {
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: false,
-      },
-    }),
-    assetPlugins: ['react-native-svg-asset-plugin'],
-    svgAssetPlugin: {
-      cacheDir: '.png-cache',
-      scales: [1, 2, 3],
-      output: {
-        compressionLevel: 9,
-      },
-    },
-  },
-};
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getDefaultConfig(__dirname);
+
+config.transformer.assetPlugins.push('react-native-svg-asset-plugin');
+
+module.exports = config;

@@ -16,9 +16,27 @@ npm install --save-dev react-native-svg-asset-plugin
 
 No dependencies outside of NPM. Uses [sharp](https://github.com/lovell/sharp) for SVG rasterization.
 
-Requires React Native version 0.57 or later to work. Expo not supported, instead you might want to use [react-native-svg-transformer](https://github.com/kristerkari/react-native-svg-transformer).
+Requires React Native version 0.57 (i.e. metro version 0.44) or later to work.
 
 ### metro
+
+To enable the asset plugin you will need to include it in the metro configuration.
+
+#### Expo
+
+For expo projects you will first need to [enable customization](https://docs.expo.dev/guides/customizing-metro/) of the metro config:
+
+```sh
+npx expo customize metro.config.js
+```
+
+Then, in the `metro.config.js` file, add `'react-native-svg-asset-plugin'` to the transformer asset plugins like this:
+
+```javascript
+config.transformer.assetPlugins.push('react-native-svg-asset-plugin');
+```
+
+#### React Native
 
 Add `'react-native-svg-asset-plugin'` to the list of `assetPlugins` in your `metro.config.js` file under the `transformer` section.
 
@@ -30,7 +48,7 @@ module.exports = {
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
-        inlineRequires: false,
+        inlineRequires: true,
       },
     }),
     assetPlugins: ['react-native-svg-asset-plugin'],
