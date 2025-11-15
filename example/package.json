@@ -12,16 +12,16 @@
   },
   "dependencies": {
     "react": "16.11.0",
-    "react-native": "0.62.3"
+    "react-native": "0.82.1"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
     "@babel/runtime": "^7.9.6",
-    "@react-native-community/eslint-config": "^1.1.0",
-    "babel-jest": "^25.5.1",
-    "eslint": "^6.8.0",
+    "@react-native-community/eslint-config": "^3.2.0",
+    "babel-jest": "^30.2.0",
+    "eslint": "^9.39.1",
     "install-local": "^2.0.0",
-    "jest": "^25.5.4",
+    "jest": "^30.2.0",
     "metro-react-native-babel-preset": "^0.59.0",
     "react-test-renderer": "16.11.0"
   },
