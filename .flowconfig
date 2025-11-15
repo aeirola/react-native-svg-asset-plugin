@@ -4,13 +4,11 @@
 [include]
 
 [untyped]
-<PROJECT_ROOT>/node_modules/metro/src/shared/.*
 
 [libs]
 
 [lints]
 all=warn
-dynamic-export=off
 
 [options]
 include_warnings=true

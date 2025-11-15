@@ -17,9 +17,8 @@ export async function isFileOutdated(
   outputFilePath: string,
   config: Config,
 ): Promise<boolean> {
-  const outputLastWrittenTimeStamp = await fsUtils.getLastModifiedTime(
-    outputFilePath,
-  );
+  const outputLastWrittenTimeStamp =
+    await fsUtils.getLastModifiedTime(outputFilePath);
 
   if (outputLastWrittenTimeStamp === 0) {
     // File doesn't exist, or timestamps messed up
