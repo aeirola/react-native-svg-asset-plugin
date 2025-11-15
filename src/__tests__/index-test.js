@@ -148,9 +148,7 @@ async function getImageColor(
   }
 }
 
-async function getImageSize(
-  imagePath: string,
-): Promise<{
+async function getImageSize(imagePath: string): Promise<{
   width: ?number,
   height: ?number,
 }> {

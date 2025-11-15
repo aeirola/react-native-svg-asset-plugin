@@ -9,11 +9,11 @@ const funcUtils = require('./utils/func');
 /**
  * Load sharp conditionally.
  *
- * Since the sharp library is quite larg, this is useful
+ * Since the sharp library is quite large, this is useful
  * when you might not want to load the whole library
  * at startup.
  */
-export const load = funcUtils.memo(async () => {
+export const load: () => Promise<sharp> = funcUtils.memo(async () => {
   const sharp = require('sharp');
 
   await warmup(sharp);
