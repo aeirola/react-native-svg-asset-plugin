@@ -2,10 +2,10 @@ name: CI
 on:
   pull_request:
     branches:
-      - master
+      - main
   push:
     branches:
-      - master
+      - main
     tags:
       - 'v*'
 
@@ -31,6 +31,18 @@ jobs:
           name: integration-test-png-cache-${{ matrix.os }}-node${{ matrix.node_version }}-metro${{ matrix.metro_version }}
           path: integration_tests/bundles/images/.png-cache/
           include-hidden-files: true
+
+  example:
+    runs-on: ubuntu-latest
+    name: Example
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+      - run: npm ci
+      - run: npm ci
+        working-directory: ./example/
+      - run: npx expo export
+        working-directory: ./example/
 
   publish:
     needs: test
