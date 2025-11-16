@@ -1,33 +1,31 @@
-/**
- * @flow strict-local
- */
-
-const fse = require('fs-extra');
-const path = require('path');
-
+import fse from 'fs-extra';
+import path from 'path';
 import type { Metadata, PngOptions } from 'sharp';
-import type { AssetData, AssetDataPlugin } from 'metro/src/Assets';
-
-const cache = require('./cache');
-const config = require('./config');
-const sharp = require('./sharp');
-const funcUtils = require('./utils/func');
-const fsUtils = require('./utils/fs');
-
+import type { AssetData } from 'metro';
+import * as cache from './cache';
+import * as config from './config';
+import * as sharp from './sharp';
+import * as funcUtils from './utils/func';
+import * as fsUtils from './utils/fs';
 import type { Config } from './config';
+
+/** Should match https://github.com/facebook/metro/blob/0.83.3/packages/metro/src/Assets.js#L89 */
+type AssetDataPlugin = (assetData: AssetData) => AssetData | Promise<AssetData>;
 
 const asyncConfig: Promise<Config> = config.load();
 
 async function reactNativeSvgAssetPlugin(
   assetData: AssetData,
 ): Promise<AssetData> {
-  const filePath = assetData.files.length ? assetData.files[0] : '';
+  const filePath = assetData.files[0] || '';
   if (await shouldConvertFile(assetData, filePath)) {
     return convertSvg(assetData);
   } else {
     return assetData;
   }
 }
+
+export = reactNativeSvgAssetPlugin satisfies AssetDataPlugin;
 
 async function shouldConvertFile(
   assetData: AssetData,
@@ -48,7 +46,7 @@ async function shouldConvertFile(
 async function convertSvg(assetData: AssetData): Promise<AssetData> {
   if (assetData.scales.length !== assetData.files.length) {
     throw new Error("Passed scales doesn't match passed files.");
-  } else if (assetData.files.length === 0) {
+  } else if (assetData.files[0] === undefined) {
     throw new Error('No files passed.');
   } else if (assetData.files.length > 1) {
     throw new Error('Multiple SVG scales not supported.');
@@ -183,6 +181,3 @@ function getScaleSuffix(scale: number): string {
       return `@${scale}x`;
   }
 }
-
-const assetDataPlugin: AssetDataPlugin = reactNativeSvgAssetPlugin;
-module.exports = assetDataPlugin;

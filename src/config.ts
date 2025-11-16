@@ -1,18 +1,13 @@
-/**
- * @flow strict-local
- */
-
-const path = require('path');
-
+import path from 'path';
 import type { PngOptions } from 'sharp';
-
-const fsUtils = require('./utils/fs');
+import * as fsUtils from './utils/fs';
+import { MetroConfig } from 'metro';
 
 export interface Config {
   cacheDir: string;
   scales: number[];
   output: PngOptions;
-  +ignoreRegex: ?RegExp;
+  ignoreRegex: RegExp | null;
   lastModifiedTime: number;
 }
 
@@ -34,7 +29,9 @@ export async function load(): Promise<Config> {
     ])),
   );
 
-  let metroConfig;
+  let metroConfig: MetroConfig & {
+    transformer?: MetroConfig['transformer'] & { svgAssetPlugin?: Config },
+  };
   try {
     metroConfig = require(metroConfigPath);
   } catch {
@@ -44,7 +41,7 @@ export async function load(): Promise<Config> {
   const transformerOptions = metroConfig.transformer || {};
   const svgAssetPluginOptions = transformerOptions.svgAssetPlugin || {};
 
-  const config = {
+  const config: Config = {
     ...defaultConfig,
     ...svgAssetPluginOptions,
     lastModifiedTime,

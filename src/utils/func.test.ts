@@ -1,8 +1,5 @@
-/**
- * @flow
- */
-
-const funcUtils = require('../func');
+import { describe, it, expect, vi } from 'vitest';
+import * as funcUtils from './func';
 
 describe('funcUtils', () => {
   describe('memo', () => {
@@ -13,7 +10,7 @@ describe('funcUtils', () => {
     });
 
     it('only calls the callback function once', async () => {
-      const callbackFunction = jest.fn(async () => ({}));
+      const callbackFunction = vi.fn(async () => ({}));
       const memoizedFunction = funcUtils.memo(callbackFunction);
 
       memoizedFunction();
@@ -24,7 +21,7 @@ describe('funcUtils', () => {
     });
 
     it('does not call callback until return function is called', async () => {
-      const callbackFunction = jest.fn();
+      const callbackFunction = vi.fn();
 
       const memoizedFunction = funcUtils.memo(callbackFunction);
 

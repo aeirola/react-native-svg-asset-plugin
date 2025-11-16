@@ -1,10 +1,5 @@
-/**
- * @flow strict-local
- */
-
-import typeof sharp from 'sharp';
-
-const funcUtils = require('./utils/func');
+import type sharpType from 'sharp';
+import * as funcUtils from './utils/func';
 
 /**
  * Load sharp conditionally.
@@ -13,17 +8,19 @@ const funcUtils = require('./utils/func');
  * when you might not want to load the whole library
  * at startup.
  */
-export const load: () => Promise<sharp> = funcUtils.memo(async () => {
-  const sharp = require('sharp');
+export const load: () => Promise<typeof sharpType> = funcUtils.memo(
+  async () => {
+    const sharp = require('sharp');
 
-  await warmup(sharp);
-  return sharp;
-});
+    await warmup(sharp);
+    return sharp;
+  },
+);
 
 /**
  * Warms up the sharp library, handling any warmup errors.
  */
-async function warmup(sharp): Promise<void> {
+async function warmup(sharp: typeof sharpType): Promise<void> {
   // First run might cause a xmllib error, run safe warmup
   // See https://github.com/lovell/sharp/issues/1593
   try {

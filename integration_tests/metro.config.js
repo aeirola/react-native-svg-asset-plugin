@@ -10,12 +10,13 @@ module.exports = {
   watchFolders: [
     ROOT_PATH,
     path.resolve(__dirname, '..', 'node_modules', 'metro', 'src'),
+    path.resolve(__dirname, '..', 'node_modules', 'metro-runtime', 'src'),
   ],
   resolver: {
     useWatchman: false,
   },
   transformer: {
-    assetPlugins: [path.resolve(__dirname, '..', 'src')],
+    assetPlugins: [path.resolve(__dirname, '..', 'lib')],
     assetRegistryPath: path.resolve(
       __dirname,
       '..',

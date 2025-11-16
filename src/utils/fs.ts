@@ -1,8 +1,4 @@
-/**
- * @flow strict-local
- */
-
-const fse = require('fs-extra');
+import * as fse from 'fs-extra';
 
 export async function getLastModifiedTime(filePath: string): Promise<number> {
   try {

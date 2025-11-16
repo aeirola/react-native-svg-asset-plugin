@@ -1,12 +1,9 @@
-/**
- * @flow
- */
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 
-const fse = require('fs-extra');
-const path = require('path');
+import fse from 'fs-extra';
+import path from 'path';
 
-const cache = require('../cache');
-const fsUtils = require('../utils/fs');
+import * as cache from './cache';
 
 describe('cache', () => {
   let tmpDir: string;
@@ -28,10 +25,10 @@ describe('cache', () => {
 
   async function createFiles(files: { [name: string]: number }) {
     return await Promise.all(
-      Object.keys(files).map(async (fileName) => {
-        const filePath = path.join(tmpDir, fileName);
+      Object.entries(files).map(async ([name, age]) => {
+        const filePath = path.join(tmpDir, name);
         await fse.writeFile(filePath, '');
-        const timestamp = Date.now() / 1000 - files[fileName];
+        const timestamp = Date.now() / 1000 - age;
         await fse.utimes(filePath, timestamp, timestamp);
         return filePath;
       }),
@@ -44,7 +41,7 @@ describe('cache', () => {
         'file.png': 10,
       });
 
-      expect(await cache.isFileOutdated(filePath, config)).toBe(true);
+      expect(await cache.isFileOutdated(filePath || '', config)).toBe(true);
     });
 
     it('returns false for new files', async () => {
@@ -52,7 +49,7 @@ describe('cache', () => {
         'file.png': -10,
       });
 
-      expect(await cache.isFileOutdated(filePath, config)).toBe(false);
+      expect(await cache.isFileOutdated(filePath || '', config)).toBe(false);
     });
 
     it('returns true for missing files', async () => {
@@ -70,7 +67,9 @@ describe('cache', () => {
         'old-image.png': 2 * 24 * 60 * 60,
       });
 
-      await callAndRunTimers(() => cache.isFileOutdated(filePath, config));
+      await callAndRunTimers(() =>
+        cache.isFileOutdated(filePath || '', config),
+      );
 
       await waitFor(async () =>
         expect(await fse.readdir(tmpDir)).toEqual(['new-image.png']),
@@ -82,7 +81,9 @@ describe('cache', () => {
         'README.md': 30 * 24 * 60 * 60,
       });
 
-      await callAndRunTimers(() => cache.isFileOutdated(filePath, config));
+      await callAndRunTimers(() =>
+        cache.isFileOutdated(filePath || '', config),
+      );
 
       await waitFor(async () =>
         expect(await fse.readdir(tmpDir)).toEqual(['README.md']),
@@ -95,18 +96,18 @@ describe('cache', () => {
  * Call function running all timers immediately.
  * Useful for triggering background cleanups.
  */
-async function callAndRunTimers(fn) {
-  jest.useFakeTimers();
+async function callAndRunTimers(fn: Function) {
+  vi.useFakeTimers();
   await fn();
-  jest.runAllTimers();
-  jest.useRealTimers();
+  vi.runAllTimers();
+  vi.useRealTimers();
 }
 
 /**
  * Call function repeatedly until it doesn't throw.
  * Useful for waiting for test assertions to be fulfilled.
  */
-async function waitFor(fn, timeout: number = 1000) {
+async function waitFor(fn: Function, timeout: number = 1000) {
   const startTime = Date.now();
   while (true) {
     try {
