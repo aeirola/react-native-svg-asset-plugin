@@ -1,12 +1,6 @@
-/**
- * @flow strict-local
- */
-
-const path = require('path');
-const fse = require('fs-extra');
-
-const fsUtils = require('./utils/fs');
-
+import path from 'path';
+import fse from 'fs-extra';
+import * as fsUtils from './utils/fs';
 import type { Config } from './config';
 
 /**
@@ -38,7 +32,7 @@ export async function isFileOutdated(
 
 // Only clean up each directory once per plugin instance.
 // Keep track of already cleaned directories here.
-const scheduledDirectoryCleanups = new Set();
+const scheduledDirectoryCleanups = new Set<string>();
 // Time to wait until cache cleanup is executed.
 // This gives the metro server time and resources to
 // process all assets before performing cleanup.
@@ -74,7 +68,7 @@ async function removeFilesOlderThan(
   directoryPath: string,
   timestamp: number,
 ): Promise<void> {
-  let fileNames;
+  let fileNames: string[];
   try {
     fileNames = await fse.readdir(directoryPath);
   } catch {
