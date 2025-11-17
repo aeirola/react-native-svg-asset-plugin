@@ -8,7 +8,7 @@ import assetPlugin from './index';
 
 describe('react-native-svg-asset-plugin', { timeout: 20 * 1000 }, () => {
   const it = baseIt.extend<{
-    imageDir: string,
+    imageDir: string;
   }>({
     imageDir: async ({}, use) => {
       const tmpDir = await fse.mkdtemp('react-native-svg-asset-plugin');
@@ -160,8 +160,8 @@ async function getImageColor(
 }
 
 async function getImageSize(imagePath: string): Promise<{
-  width?: number,
-  height?: number,
+  width?: number;
+  height?: number;
 }> {
   const metadata = await sharp(imagePath).metadata();
   return {

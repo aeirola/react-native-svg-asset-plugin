@@ -30,7 +30,7 @@ export async function load(): Promise<Config> {
   );
 
   let metroConfig: MetroConfig & {
-    transformer?: MetroConfig['transformer'] & { svgAssetPlugin?: Config },
+    transformer?: MetroConfig['transformer'] & { svgAssetPlugin?: Config };
   };
   try {
     metroConfig = require(metroConfigPath);
