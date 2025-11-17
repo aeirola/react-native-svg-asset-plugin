@@ -10,7 +10,7 @@ import * as funcUtils from './utils/func';
  */
 export const load: () => Promise<typeof sharpType> = funcUtils.memo(
   async () => {
-    const sharp = require('sharp');
+    const sharp = (await import('sharp')).default;
 
     await warmup(sharp);
     return sharp;
