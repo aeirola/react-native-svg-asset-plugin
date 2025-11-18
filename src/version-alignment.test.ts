@@ -38,9 +38,13 @@ describe('Node version alignment', () => {
 
     // The @types/node version should start with ^{nodeVersion}.
     // For example, if using @tsconfig/node18, @types/node should be ^18.x.x
-    expect(
+    const isVersionAligned =
       typesNodeVersion.startsWith(`^${expectedNodeMajorVersion}.`) ||
-        typesNodeVersion.startsWith(`~${expectedNodeMajorVersion}.`),
+      typesNodeVersion.startsWith(`~${expectedNodeMajorVersion}.`);
+
+    expect(isVersionAligned, 
+      `@types/node version "${typesNodeVersion}" should match the minimum supported Node version ${expectedNodeMajorVersion} (from ${nodeConfigExtends}). ` +
+      `Expected version to start with ^${expectedNodeMajorVersion}. or ~${expectedNodeMajorVersion}.`
     ).toBe(true);
   });
 });
