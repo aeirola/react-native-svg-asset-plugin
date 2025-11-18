@@ -44,4 +44,49 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.9"
   }
+	"name": "react-native-svg-asset-plugin",
+	"version": "0.5.0",
+	"description": "Asset plugin for importing SVG images in React Native",
+	"keywords": [
+		"react-native",
+		"svg"
+	],
+	"homepage": "https://github.com/aeirola/react-native-svg-asset-plugin",
+	"bugs": {
+		"url": "https://github.com/aeirola/react-native-svg-asset-plugin/issues"
+	},
+	"main": "lib/index.js",
+	"type": "commonjs",
+	"scripts": {
+		"prepare": "tsc --project tsconfig.build.json",
+		"test": "npm-run-all test:*",
+		"test:lint": "npm-run-all --parallel test:lint:*",
+		"test:lint:style": "biome check",
+		"test:lint:types": "tsc",
+		"test:unit": "vitest run"
+	},
+	"files": [
+		"lib/"
+	],
+	"author": "Axel Havukangas <axel@havukangas.fi>",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aeirola/react-native-svg-asset-plugin.git"
+	},
+	"dependencies": {
+		"fs-extra": ">=3.0.0",
+		"sharp": ">=0.14.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.6",
+		"@tsconfig/node18": "^18.2.5",
+		"@tsconfig/strictest": "^2.0.8",
+		"@types/fs-extra": "^11.0.4",
+		"@types/node": "^24.10.1",
+		"metro": "^0.83.3",
+		"npm-run-all": "^4.1.5",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.9"
+	}
 }
