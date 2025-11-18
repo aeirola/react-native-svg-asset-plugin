@@ -1,59 +1,62 @@
-import { describe, it as baseIt, expect } from 'vitest';
-import fse from 'fs-extra';
-import path from 'path';
-import * as fsUtils from './fs';
+import path from "node:path";
+import fse from "fs-extra";
+import { it as baseIt, describe, expect } from "vitest";
+import * as fsUtils from "./fs";
 
-describe('fsUtils', () => {
-  const it = baseIt.extend<{
-    testfilePath: string;
-    nonexistingFilePath: string;
-  }>({
-    testfilePath: async ({}, use) => {
-      const tmpDir = await fse.mkdtemp('react-native-svg-asset-plugin');
-      const testfilePath = path.join(tmpDir, 'testfile');
-      await fse.writeFile(testfilePath, 'Empty file for testing fs functions');
+describe("fsUtils", () => {
+	const it = baseIt.extend<{
+		testfilePath: string;
+		nonexistingFilePath: string;
+	}>({
+		testfilePath: async ({ annotate }, use) => {
+			await annotate("Creating temporary test file");
 
-      await use(testfilePath);
+			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
+			const testfilePath = path.join(tmpDir, "testfile");
+			await fse.writeFile(testfilePath, "Empty file for testing fs functions");
 
-      await fse.remove(tmpDir);
-    },
+			await use(testfilePath);
 
-    nonexistingFilePath: async ({}, use) => {
-      const tmpDir = await fse.mkdtemp('react-native-svg-asset-plugin');
-      const filePath = path.join(tmpDir, 'non-existent-file');
+			await fse.remove(tmpDir);
+		},
 
-      await use(filePath);
+		nonexistingFilePath: async ({ annotate }, use) => {
+			await annotate("Creating temporary non-existing test file path");
 
-      await fse.remove(tmpDir);
-    },
-  });
+			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
+			const filePath = path.join(tmpDir, "non-existent-file");
 
-  describe('getLastModifiedTime', () => {
-    it('returns millisecond time for existing files', async ({
-      testfilePath,
-    }) => {
-      expect(await fsUtils.getLastModifiedTime(testfilePath)).toBeGreaterThan(
-        1590000000000,
-      );
-    });
+			await use(filePath);
 
-    it('returns 0 on nonexisting files', async ({ nonexistingFilePath }) => {
-      expect(await fsUtils.getLastModifiedTime(nonexistingFilePath)).toBe(0);
-    });
-  });
+			await fse.remove(tmpDir);
+		},
+	});
+	describe("getLastModifiedTime", () => {
+		it("returns millisecond time for existing files", async ({
+			testfilePath,
+		}) => {
+			expect(await fsUtils.getLastModifiedTime(testfilePath)).toBeGreaterThan(
+				1590000000000,
+			);
+		});
 
-  describe('updateLastModifiedTime', () => {
-    it('updates modified time of existing files', async ({ testfilePath }) => {
-      const currentTime = Date.now();
-      await fsUtils.updateLastModifiedTime(testfilePath);
+		it("returns 0 on nonexisting files", async ({ nonexistingFilePath }) => {
+			expect(await fsUtils.getLastModifiedTime(nonexistingFilePath)).toBe(0);
+		});
+	});
 
-      const modifiedTime = await fsUtils.getLastModifiedTime(testfilePath);
-      expect(modifiedTime).toBeGreaterThan(currentTime - 5000);
-      expect(modifiedTime).toBeLessThan(currentTime + 5000);
-    });
+	describe("updateLastModifiedTime", () => {
+		it("updates modified time of existing files", async ({ testfilePath }) => {
+			const currentTime = Date.now();
+			await fsUtils.updateLastModifiedTime(testfilePath);
 
-    it('does not fail on unexisting files', async ({ nonexistingFilePath }) => {
-      await fsUtils.updateLastModifiedTime(nonexistingFilePath);
-    });
-  });
+			const modifiedTime = await fsUtils.getLastModifiedTime(testfilePath);
+			expect(modifiedTime).toBeGreaterThan(currentTime - 5000);
+			expect(modifiedTime).toBeLessThan(currentTime + 5000);
+		});
+
+		it("does not fail on unexisting files", async ({ nonexistingFilePath }) => {
+			await fsUtils.updateLastModifiedTime(nonexistingFilePath);
+		});
+	});
 });

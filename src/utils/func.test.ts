@@ -1,35 +1,35 @@
-import { describe, it, expect, vi } from 'vitest';
-import * as funcUtils from './func';
+import { describe, expect, it, vi } from "vitest";
+import * as funcUtils from "./func";
 
-describe('funcUtils', () => {
-  describe('memo', () => {
-    it('always returns the same value', async () => {
-      const memoizedFunction = funcUtils.memo(async () => ({}));
+describe("funcUtils", () => {
+	describe("memo", () => {
+		it("always returns the same value", async () => {
+			const memoizedFunction = funcUtils.memo(async () => ({}));
 
-      expect(await memoizedFunction()).toBe(await memoizedFunction());
-    });
+			expect(await memoizedFunction()).toBe(await memoizedFunction());
+		});
 
-    it('only calls the callback function once', async () => {
-      const callbackFunction = vi.fn(async () => ({}));
-      const memoizedFunction = funcUtils.memo(callbackFunction);
+		it("only calls the callback function once", async () => {
+			const callbackFunction = vi.fn(async () => ({}));
+			const memoizedFunction = funcUtils.memo(callbackFunction);
 
-      memoizedFunction();
-      memoizedFunction();
-      memoizedFunction();
+			memoizedFunction();
+			memoizedFunction();
+			memoizedFunction();
 
-      expect(callbackFunction).toHaveBeenCalledTimes(1);
-    });
+			expect(callbackFunction).toHaveBeenCalledTimes(1);
+		});
 
-    it('does not call callback until return function is called', async () => {
-      const callbackFunction = vi.fn();
+		it("does not call callback until return function is called", async () => {
+			const callbackFunction = vi.fn();
 
-      const memoizedFunction = funcUtils.memo(callbackFunction);
+			const memoizedFunction = funcUtils.memo(callbackFunction);
 
-      expect(callbackFunction).not.toHaveBeenCalled();
+			expect(callbackFunction).not.toHaveBeenCalled();
 
-      memoizedFunction();
+			memoizedFunction();
 
-      expect(callbackFunction).toHaveBeenCalledTimes(1);
-    });
-  });
+			expect(callbackFunction).toHaveBeenCalledTimes(1);
+		});
+	});
 });
