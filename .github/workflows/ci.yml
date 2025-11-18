@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        node_version: [20]
-        metro_version: ['0.83.3']
+        node_version: [20, 24]
+        metro_version: ['^0.81.0', '^0.82.0', '^0.83.1']
     name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -23,6 +23,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            example/package-lock.json
       - run: npm ci
       - run: npm install --dev --no-save metro@${{ matrix.metro_version }}
       - run: npm test
@@ -31,17 +35,9 @@ jobs:
           name: integration-test-png-cache-${{ matrix.os }}-node${{ matrix.node_version }}-metro${{ matrix.metro_version }}
           path: integration_tests/bundles/images/.png-cache/
           include-hidden-files: true
-
-  example:
-    runs-on: ubuntu-latest
-    name: Example
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
-      - run: npm ci
-      - run: npm ci
-        working-directory: ./example/
-      - run: npx expo export
+      - run: |
+          npm ci
+          npx expo export
         working-directory: ./example/
 
   publish:
