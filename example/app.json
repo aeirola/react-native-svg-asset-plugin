@@ -1,10 +1,10 @@
 {
-  "expo": {
-    "name": "example",
-    "slug": "example",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true
-  }
+	"expo": {
+		"name": "example",
+		"slug": "example",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"userInterfaceStyle": "light",
+		"newArchEnabled": true
+	}
 }

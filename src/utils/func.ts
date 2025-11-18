@@ -5,13 +5,13 @@
  * This is useful to provide lazy, but cached, loading of data.
  */
 export function memo<T>(callback: () => Promise<T>): () => Promise<T> {
-  let memoizedValue: Promise<T> | undefined;
+	let memoizedValue: Promise<T> | undefined;
 
-  return () => {
-    if (!memoizedValue) {
-      memoizedValue = callback();
-    }
+	return () => {
+		if (!memoizedValue) {
+			memoizedValue = callback();
+		}
 
-    return memoizedValue;
-  };
+		return memoizedValue;
+	};
 }

@@ -1,24 +1,24 @@
 {
-  "name": "example",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "postinstall": "install-local",
-    "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios"
-  },
-  "dependencies": {
-    "@expo/metro-config": "~54.0.2",
-    "expo": "~54.0.23",
-    "react": "19.1.0",
-    "react-native": "0.81.5"
-  },
-  "private": true,
-  "devDependencies": {
-    "install-local": "^4.1.0"
-  },
-  "localDependencies": {
-    "react-native-svg-asset-plugin": ".."
-  }
+	"name": "example",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"postinstall": "install-local",
+		"start": "expo start",
+		"android": "expo run:android",
+		"ios": "expo run:ios"
+	},
+	"dependencies": {
+		"@expo/metro-config": "~54.0.2",
+		"expo": "~54.0.23",
+		"react": "19.1.0",
+		"react-native": "0.81.5"
+	},
+	"private": true,
+	"devDependencies": {
+		"install-local": "^4.1.0"
+	},
+	"localDependencies": {
+		"react-native-svg-asset-plugin": ".."
+	}
 }

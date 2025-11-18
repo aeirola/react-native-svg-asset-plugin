@@ -1,3 +1,3 @@
-const image = require('./images/image.svg');
+const image = require("./images/image.svg");
 
 module.exports = { image };
