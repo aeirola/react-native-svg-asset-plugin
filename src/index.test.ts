@@ -9,9 +9,7 @@ describe("react-native-svg-asset-plugin", { timeout: 20 * 1000 }, () => {
 	const it = baseIt.extend<{
 		imageDir: string;
 	}>({
-		imageDir: async ({ annotate }, use) => {
-			await annotate("Creating temporary test image");
-
+		imageDir: async ({}, use) => {
 			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
 			const testfilePath = path.join(tmpDir, "red-200x100.svg");
 

@@ -8,9 +8,7 @@ describe("fsUtils", () => {
 		testfilePath: string;
 		nonexistingFilePath: string;
 	}>({
-		testfilePath: async ({ annotate }, use) => {
-			await annotate("Creating temporary test file");
-
+		testfilePath: async ({}, use) => {
 			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
 			const testfilePath = path.join(tmpDir, "testfile");
 			await fse.writeFile(testfilePath, "Empty file for testing fs functions");
@@ -20,9 +18,7 @@ describe("fsUtils", () => {
 			await fse.remove(tmpDir);
 		},
 
-		nonexistingFilePath: async ({ annotate }, use) => {
-			await annotate("Creating temporary non-existing test file path");
-
+		nonexistingFilePath: async ({}, use) => {
 			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
 			const filePath = path.join(tmpDir, "non-existent-file");
 

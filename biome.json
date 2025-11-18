@@ -7,6 +7,16 @@
 	},
 	"overrides": [
 		{
+			"includes": ["**/*.test.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noEmptyPattern": "off"
+					}
+				}
+			}
+		},
+		{
 			"includes": ["tsconfig.json", "tsconfig.*.json"],
 			"json": {
 				"parser": {
