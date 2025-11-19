@@ -32,7 +32,7 @@ jobs:
           - os: ubuntu-latest
             node_version: 20
             metro_version: ^0.81.0
-    name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version || 'latest' }}
+    name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -53,16 +53,19 @@ jobs:
     strategy:
       matrix:
         include:
-          - expo_version: ~54.0.0
+          - expo_version: ~54.0.23
+            expo_metro_config_version: ~54.0.2
             react_native_version: 0.81.5
             react_version: 19.1.0
           - expo_version: ~53.0.0
+            expo_metro_config_version: 0.20.17
             react_native_version: 0.79.6
             react_version: 19.0.0
           - expo_version: ~52.0.0
+            expo_metro_config_version: 0.19.12
             react_native_version: 0.76.9
             react_version: 18.3.1
-    name: Example
+    name: Example (Expo ${{ matrix.expo_version }})
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
