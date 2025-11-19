@@ -40,7 +40,7 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - run: npm ci
-      - run: npm install --dev --no-save metro@${{ matrix.metro_version }}
+      - run: npm install --no-save metro@${{ matrix.metro_version }}
       - run: npm test
       - uses: actions/upload-artifact@v5
         with:
@@ -76,7 +76,7 @@ jobs:
             example/package-lock.json
       - run: npm ci
       - run: >
-          npm install --dev --no-save
+          npm install --no-save
           expo@${{ matrix.expo_version }}
           @expo/metro-config@${{ matrix.expo_metro_config_version }}
           react-native@${{ matrix.react_native_version }}
