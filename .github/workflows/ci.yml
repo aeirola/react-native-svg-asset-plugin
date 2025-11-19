@@ -75,14 +75,14 @@ jobs:
             package-lock.json
             example/package-lock.json
       - run: npm ci
-      - run: npm ci
-        working-directory: ./example/
       - run: >
           npm install --dev --no-save
           expo@${{ matrix.expo_version }}
           @expo/metro-config@${{ matrix.expo_version }}
           react-native@${{ matrix.react_native_version }}
           react@${{ matrix.react_version }}
+        working-directory: ./example/
+      - run: npx install-local
         working-directory: ./example/
       - run: npx expo export
         working-directory: ./example/
