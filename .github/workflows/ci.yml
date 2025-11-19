@@ -57,11 +57,11 @@ jobs:
             expo_metro_config_version: ~54.0.2
             react_native_version: 0.81.5
             react_version: 19.1.0
-          - expo_version: ~53.0.0
+          - expo_version: ~53.0.24
             expo_metro_config_version: 0.20.17
             react_native_version: 0.79.6
             react_version: 19.0.0
-          - expo_version: ~52.0.0
+          - expo_version: ~52.0.47
             expo_metro_config_version: 0.19.12
             react_native_version: 0.76.9
             react_version: 18.3.1
