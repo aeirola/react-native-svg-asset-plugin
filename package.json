@@ -38,7 +38,7 @@
 		"@tsconfig/strictest": "^2.0.8",
 		"@types/fs-extra": "^11.0.4",
 		"@types/node": "^20.19.25",
-		"concurrently": "^9.1.0",
+		"concurrently": "^9.2.1",
 		"metro": "^0.83.3",
 		"typescript": "^5.9.3",
 		"vitest": "^4.0.9"
