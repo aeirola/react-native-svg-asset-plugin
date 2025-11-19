@@ -13,14 +13,26 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-        node_version: [24]
-        metro_version: [latest]
         include:
-          - node_version: 20
-          - metro_version: ^0.81.0
-          - metro_version: ^0.82.0
-    name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version }}
+          - os: macos-latest
+            node_version: 24
+            metro_version: ^0.83.1
+          - os: windows-latest
+            node_version: 24
+            metro_version: ^0.83.1
+          # React Native 0.81-0.83
+          - os: ubuntu-latest
+            node_version: 24
+            metro_version: ^0.83.1
+          # React Native 0.79-0.80
+          - os: ubuntu-latest
+            node_version: 22
+            metro_version: ^0.82.0
+          # React Native 0.77-0.78
+          - os: ubuntu-latest
+            node_version: 20
+            metro_version: ^0.81.0
+    name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version || 'latest' }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -35,13 +47,21 @@ jobs:
           name: integration-test-png-cache-${{ matrix.os }}-node${{ matrix.node_version }}-metro${{ matrix.metro_version }}
           path: integration_tests/bundles/images/.png-cache/
           include-hidden-files: true
-      - run: |
-          npm ci
-          npx expo export
-        working-directory: ./example/
 
   example:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - expo_version: ~54.0.0
+            react_native_version: 0.81.5
+            react_version: 19.1.0
+          - expo_version: ~53.0.0
+            react_native_version: 0.79.6
+            react_version: 19.0.0
+          - expo_version: ~52.0.0
+            react_native_version: 0.76.9
+            react_version: 18.3.1
     name: Example
     steps:
       - uses: actions/checkout@v5
@@ -52,6 +72,14 @@ jobs:
             package-lock.json
             example/package-lock.json
       - run: npm ci
+      - run: npm ci
+        working-directory: ./example/
+      - run: >
+          npm install --dev --no-save
+          expo@${{ matrix.expo_version }}
+          @expo/metro-config@${{ matrix.expo_version }}
+          react-native@${{ matrix.react_native_version }}
+          react@${{ matrix.react_version }}
         working-directory: ./example/
       - run: npx expo export
         working-directory: ./example/
