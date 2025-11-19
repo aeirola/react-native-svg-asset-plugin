@@ -14,8 +14,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        node_version: [20, 24]
-        metro_version: ['^0.81.0', '^0.82.0', '^0.83.1']
+        node_version: [24]
+        metro_version: [latest]
+        include:
+          - node_version: 20
+          - metro_version: ^0.81.0
+          - metro_version: ^0.82.0
     name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -23,10 +27,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
-          cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            example/package-lock.json
       - run: npm ci
       - run: npm install --dev --no-save metro@${{ matrix.metro_version }}
       - run: npm test
@@ -40,6 +40,22 @@ jobs:
           npx expo export
         working-directory: ./example/
 
+  example:
+    runs-on: ubuntu-latest
+    name: Example
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            example/package-lock.json
+      - run: npm ci
+        working-directory: ./example/
+      - run: npx expo export
+        working-directory: ./example/
+
   publish:
     needs: test
     runs-on: ubuntu-latest
@@ -48,7 +64,6 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - if: github.event_name != 'push' || !startsWith(github.event.ref, 'refs/tags')
