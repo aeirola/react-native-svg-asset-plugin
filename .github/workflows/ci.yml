@@ -13,9 +13,25 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-        node_version: [20]
-        metro_version: ['0.83.3']
+        include:
+          - os: macos-latest
+            node_version: 24
+            metro_version: ^0.83.1
+          - os: windows-latest
+            node_version: 24
+            metro_version: ^0.83.1
+          # React Native 0.81-0.83
+          - os: ubuntu-latest
+            node_version: 24
+            metro_version: ^0.83.1
+          # React Native 0.79-0.80
+          - os: ubuntu-latest
+            node_version: 22
+            metro_version: ^0.82.0
+          # React Native 0.77-0.78
+          - os: ubuntu-latest
+            node_version: 20
+            metro_version: ^0.81.0
     name: Test ${{ matrix.os }} node${{ matrix.node_version }} metro${{ matrix.metro_version }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -24,7 +40,7 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - run: npm ci
-      - run: npm install --dev --no-save metro@${{ matrix.metro_version }}
+      - run: npm install --no-save metro@${{ matrix.metro_version }}
       - run: npm test
       - uses: actions/upload-artifact@v5
         with:
@@ -34,12 +50,39 @@ jobs:
 
   example:
     runs-on: ubuntu-latest
-    name: Example
+    strategy:
+      matrix:
+        include:
+          - expo_version: ~54.0.23
+            expo_metro_config_version: ~54.0.2
+            react_native_version: 0.81.5
+            react_version: 19.1.0
+          - expo_version: ~53.0.24
+            expo_metro_config_version: 0.20.17
+            react_native_version: 0.79.6
+            react_version: 19.0.0
+          - expo_version: ~52.0.47
+            expo_metro_config_version: 0.19.12
+            react_native_version: 0.76.9
+            react_version: 18.3.1
+    name: Example (Expo ${{ matrix.expo_version }})
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
+        with:
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            example/package-lock.json
       - run: npm ci
-      - run: npm ci
+      - run: >
+          npm install --no-save
+          expo@${{ matrix.expo_version }}
+          @expo/metro-config@${{ matrix.expo_metro_config_version }}
+          react-native@${{ matrix.react_native_version }}
+          react@${{ matrix.react_version }}
+        working-directory: ./example/
+      - run: npx install-local
         working-directory: ./example/
       - run: npx expo export
         working-directory: ./example/
@@ -52,7 +95,6 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - if: github.event_name != 'push' || !startsWith(github.event.ref, 'refs/tags')
