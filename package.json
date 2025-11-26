@@ -30,7 +30,7 @@
 	},
 	"dependencies": {
 		"fs-extra": ">=3.0.0",
-		"sharp": ">=0.14.0"
+		"sharp": ">=0.26.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.6",
