@@ -1,42 +1,16 @@
 import path from "node:path";
 import fse from "fs-extra";
-import type { Config } from "./config";
-import * as fsUtils from "./utils/fs";
-
-/**
- * Determines wether the given output file is outdated,
- * meaning that it should be (re)written.
- */
-export async function isFileOutdated(
-	outputFilePath: string,
-	config: Config,
-): Promise<boolean> {
-	const outputLastWrittenTimeStamp =
-		await fsUtils.getLastModifiedTime(outputFilePath);
-
-	if (outputLastWrittenTimeStamp === 0) {
-		// File doesn't exist, or timestamps messed up
-		// Better to generate a new file
-		return true;
-	} else {
-		// File has been generated before, but has been removed from metro cache.
-
-		// We can safely remove all generated files in the directory which are
-		// older than the current file.
-		scheduleCleanup(outputFilePath, outputLastWrittenTimeStamp);
-
-		// Regenerate the file if it is older than the plugin configuration
-		return outputLastWrittenTimeStamp < config.lastModifiedTime;
-	}
-}
+import * as fsUtils from "../utils/fs";
 
 // Only clean up each directory once per plugin instance.
 // Keep track of already cleaned directories here.
 const scheduledDirectoryCleanups = new Set<string>();
+
 // Time to wait until cache cleanup is executed.
 // This gives the metro server time and resources to
 // process all assets before performing cleanup.
 const cleanupDelay = 5 * 60 * 1000;
+
 // Age that files must be older than last seen evicted file
 // for it to be removed.
 const fileAgeBuffer = 24 * 60 * 60 * 1000;
@@ -44,7 +18,10 @@ const fileAgeBuffer = 24 * 60 * 60 * 1000;
 /**
  * Cleans up cache directory
  */
-function scheduleCleanup(imageFilePath: string, timestamp: number): void {
+export function scheduleCleanup(
+	imageFilePath: string,
+	timestamp: number,
+): void {
 	const directoryPath = path.dirname(imageFilePath);
 	if (scheduledDirectoryCleanups.has(directoryPath)) {
 		// Directory has already been scheduled for processing by another call.

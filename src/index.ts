@@ -2,7 +2,7 @@ import path from "node:path";
 import fse from "fs-extra";
 import type { AssetData } from "metro";
 import type { Metadata, PngOptions } from "sharp";
-import * as cache from "./cache";
+import * as cache from "./cache/index";
 import type { Config } from "./config";
 import * as config from "./config";
 import * as sharp from "./sharp";

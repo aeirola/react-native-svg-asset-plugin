@@ -2,7 +2,7 @@ import path from "node:path";
 import fse from "fs-extra";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as cache from "./cache";
+import * as cache from "./index";
 
 describe("cache", () => {
 	let tmpDir: string;
