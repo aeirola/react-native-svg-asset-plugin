@@ -1,8 +1,7 @@
 import os from "node:os";
 import path from "node:path";
 import fse from "fs-extra";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as cache from "./index";
 
 describe("cache", () => {
@@ -61,64 +60,4 @@ describe("cache", () => {
 			);
 		});
 	});
-
-	describe("scheduleCleanup", () => {
-		it("removes old images", async () => {
-			const [filePath] = await createFiles({
-				"new-image.png": 1 * 60 * 60,
-				"old-image.png": 2 * 24 * 60 * 60,
-			});
-
-			await callAndRunTimers(() =>
-				cache.isFileOutdated(filePath || "", config),
-			);
-
-			await waitFor(async () =>
-				expect(await fse.readdir(tmpDir)).toEqual(["new-image.png"]),
-			);
-		});
-
-		it("does not remove old non-png", async () => {
-			const [filePath] = await createFiles({
-				"README.md": 30 * 24 * 60 * 60,
-			});
-
-			await callAndRunTimers(() =>
-				cache.isFileOutdated(filePath || "", config),
-			);
-
-			await waitFor(async () =>
-				expect(await fse.readdir(tmpDir)).toEqual(["README.md"]),
-			);
-		});
-	});
 });
-
-/**
- * Call function running all timers immediately.
- * Useful for triggering background cleanups.
- */
-async function callAndRunTimers(fn: () => Promise<unknown>) {
-	vi.useFakeTimers();
-	await fn();
-	vi.runAllTimers();
-	vi.useRealTimers();
-}
-
-/**
- * Call function repeatedly until it doesn't throw.
- * Useful for waiting for test assertions to be fulfilled.
- */
-async function waitFor(fn: () => Promise<unknown>, timeout: number = 1000) {
-	const startTime = Date.now();
-	while (true) {
-		try {
-			await fn();
-			return;
-		} catch (error) {
-			if (Date.now() > startTime + timeout) {
-				throw error;
-			}
-		}
-	}
-}

@@ -3,6 +3,7 @@ import fse from "fs-extra";
 import type { AssetData } from "metro";
 import type { Metadata, PngOptions } from "sharp";
 import * as cache from "./cache";
+import { buildFilename } from "./cache/filename";
 import type { Config } from "./config";
 import * as config from "./config";
 import * as sharp from "./sharp";
@@ -73,7 +74,7 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
 				imageScale / inputFileScale,
 				path.join(
 					outputDirectory,
-					`${outputName}${getScaleSuffix(imageScale)}.png`,
+					buildFilename(assetData.name, assetData.hash, imageScale),
 				),
 				config.output,
 			),
@@ -171,13 +172,4 @@ async function generatePng(
 	})
 		.png(outputOptions)
 		.toFile(outputFilePath);
-}
-
-function getScaleSuffix(scale: number): string {
-	switch (scale) {
-		case 1:
-			return "";
-		default:
-			return `@${scale}x`;
-	}
 }
