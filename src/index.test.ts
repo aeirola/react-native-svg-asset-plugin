@@ -1,3 +1,4 @@
+import os from "node:os";
 import path from "node:path";
 import fse from "fs-extra";
 import sharp from "sharp";
@@ -10,7 +11,9 @@ describe("react-native-svg-asset-plugin", { timeout: 20 * 1000 }, () => {
 		imageDir: string;
 	}>({
 		imageDir: async ({}, use) => {
-			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
+			const tmpDir = await fse.mkdtemp(
+				path.join(os.tmpdir(), "react-native-svg-asset-plugin-"),
+			);
 			const testfilePath = path.join(tmpDir, "red-200x100.svg");
 
 			await fse.writeFile(

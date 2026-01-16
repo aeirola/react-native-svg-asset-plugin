@@ -1,3 +1,4 @@
+import os from "node:os";
 import path from "node:path";
 import fse from "fs-extra";
 import { it as baseIt, describe, expect } from "vitest";
@@ -9,7 +10,9 @@ describe("fsUtils", () => {
 		nonexistingFilePath: string;
 	}>({
 		testfilePath: async ({}, use) => {
-			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
+			const tmpDir = await fse.mkdtemp(
+				path.join(os.tmpdir(), "react-native-svg-asset-plugin-"),
+			);
 			const testfilePath = path.join(tmpDir, "testfile");
 			await fse.writeFile(testfilePath, "Empty file for testing fs functions");
 
@@ -19,7 +22,9 @@ describe("fsUtils", () => {
 		},
 
 		nonexistingFilePath: async ({}, use) => {
-			const tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
+			const tmpDir = await fse.mkdtemp(
+				path.join(os.tmpdir(), "react-native-svg-asset-plugin-"),
+			);
 			const filePath = path.join(tmpDir, "non-existent-file");
 
 			await use(filePath);
