@@ -1,3 +1,4 @@
+import os from "node:os";
 import path from "node:path";
 import fse from "fs-extra";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -7,7 +8,9 @@ describe("cleanup", () => {
 	let tmpDir: string;
 
 	beforeEach(async () => {
-		tmpDir = await fse.mkdtemp("react-native-svg-asset-plugin");
+		tmpDir = await fse.mkdtemp(
+			path.join(os.tmpdir(), "react-native-svg-asset-plugin-"),
+		);
 	});
 
 	afterEach(async () => {
