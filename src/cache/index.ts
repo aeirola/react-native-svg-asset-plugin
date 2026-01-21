@@ -1,6 +1,5 @@
 import type { Config } from "../config";
 import * as fsUtils from "../utils/fs";
-import { scheduleCleanup } from "./cleanup";
 
 /**
  * Determines wether the given output file is outdated,
@@ -19,10 +18,6 @@ export async function isFileOutdated(
 		return true;
 	} else {
 		// File has been generated before, but has been removed from metro cache.
-
-		// We can safely remove all generated files in the directory which are
-		// older than the current file.
-		scheduleCleanup(outputFilePath, outputLastWrittenTimeStamp);
 
 		// Regenerate the file if it is older than the plugin configuration
 		return outputLastWrittenTimeStamp < config.lastModifiedTime;
