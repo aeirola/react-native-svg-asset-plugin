@@ -114,6 +114,22 @@ Most alternative ways of displaying SVG content in React Native apps are based o
 | Remote assets        |  Yes               |  No                             |
 | App size             |  Smaller           |  Larger                         |
 
+## Troubleshooting
+
+### Asset not found
+
+```
+Error: Asset not found: /Users/user/StickerSmash/assets/.png-cache/icon-423334598dc20172915d59bd4b95d059@3x.png for platform: ios
+    at getAbsoluteAssetRecord (/Users/user/StickerSmash/node_modules/metro/src/Assets.js:129:11)
+    at getAsset (/Users/user/StickerSmash/node_modules/metro/src/Assets.js:224:18)
+    at Server._processSingleAssetRequest (/Users/user/StickerSmash/node_modules/metro/src/Server.js:436:20)
+    at Server._processRequest (/Users/user/StickerSmash/node_modules/metro/src/Server.js:535:7)
+
+```
+
+In case the metro and plugin image caches are out of sync, the metro bundler may try to load images that aren't available anymore in the generated image cache. In this case you'll need to reset the metro cache to regenrate the images.
+
+In case this happens frequently, you might want to create an issue about it in this repository.
 
 ## Technical details
 
