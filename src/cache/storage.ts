@@ -54,14 +54,19 @@ export async function getCacheStoragePath(
 			}
 		} else if (stats.isDirectory()) {
 			// Migrate old cache directory to new location
-			const files = await fse.readdir(projectSymlink);
-			await Promise.all(
-				files.map((file) =>
-					fse.move(path.join(projectSymlink, file), path.join(cacheDir, file), {
-						overwrite: true,
-					}),
-				),
-			);
+			for (const file of await fse.readdir(projectSymlink)) {
+				try {
+					await fse.move(
+						path.join(projectSymlink, file),
+						path.join(cacheDir, file),
+						{
+							overwrite: true,
+						},
+					);
+				} catch {
+					// Ignore errors as missing files can be regenerated
+				}
+			}
 			// Remove old directory and create symlink
 			await fse.remove(projectSymlink);
 			await fse.symlink(cacheDir, projectSymlink, "dir");
