@@ -1,6 +1,8 @@
 import type { Config } from "../config";
 import * as fsUtils from "../utils/fs";
 
+export { getCacheStoragePath } from "./storage";
+
 /**
  * Determines wether the given output file is outdated,
  * meaning that it should be (re)written.

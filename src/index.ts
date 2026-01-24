@@ -3,7 +3,6 @@ import fse from "fs-extra";
 import type { AssetData } from "metro";
 import type { Metadata, PngOptions } from "sharp";
 import * as cache from "./cache";
-import { getCacheStoragePath } from "./cache/storage";
 import type { Config } from "./config";
 import * as config from "./config";
 import * as sharp from "./sharp";
@@ -61,7 +60,7 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
 	const config = await asyncConfig;
 
 	// Get the output directory where generated assets should be placed
-	const outputDirectory = await getCacheStoragePath(config, assetData);
+	const outputDirectory = await cache.getCacheStoragePath(config, assetData);
 
 	const outputName = `${assetData.name}-${assetData.hash}`;
 	const imageLoader = createimageLoader(inputFilePath);
