@@ -34,7 +34,7 @@ export async function getCacheStoragePath(
 		const cacheDir = path.join(
 			config.cacheStorageDir,
 			// Sanitize httpServerLocation to prevent path traversal
-			path.join("/", assetData.httpServerLocation),
+			path.join("/", new URL(assetData.httpServerLocation, "file://").pathname),
 		);
 
 		// Ensure the actual cache directory exists
