@@ -33,7 +33,8 @@ export async function getCacheStoragePath(
 		// Store generated images in separate directories for each source image directory
 		const cacheDir = path.join(
 			config.cacheStorageDir,
-			assetData.httpServerLocation,
+			// Sanitize httpServerLocation to prevent path traversal
+			path.join("/", assetData.httpServerLocation),
 		);
 
 		// Ensure the actual cache directory exists
