@@ -127,7 +127,7 @@ Error: Asset not found: /Users/user/StickerSmash/assets/.png-cache/icon-42333459
 
 ```
 
-In case the metro and plugin image caches are out of sync, the metro bundler may try to load images that aren't available anymore in the generated image cache. In this case you'll need to reset the metro cache to regenrate the images.
+In case the metro and plugin image caches are out of sync, the metro bundler may try to load images that aren't available anymore in the generated image cache. In this case you'll need to reset the metro cache to regenerate the images.
 
 In case this happens frequently, you might want to create an issue about it in this repository.
 
