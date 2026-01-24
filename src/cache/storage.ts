@@ -23,33 +23,35 @@ export async function getCacheStoragePath(
 
 	// Ensure symlink points to the cache directory
 	const stats = await lstatIfExists(projectSymlink);
-	if (stats) {
-		if (stats.isSymbolicLink()) {
-			const currentTarget = await fse.readlink(projectSymlink);
-			if (currentTarget === cacheDir) {
-				// Symlink already correct
-				return projectSymlink;
-			}
-			// Remove incorrect symlink
-			await fse.remove(projectSymlink);
-		} else if (stats.isDirectory()) {
-			// Migrate old cache directory to new location
-			const files = await fse.readdir(projectSymlink);
-			await Promise.all(
-				files.map((file) =>
-					fse.move(path.join(projectSymlink, file), path.join(cacheDir, file), {
-						overwrite: true,
-					}),
-				),
-			);
-			await fse.remove(projectSymlink);
-		} else {
-			// Remove file or other non-directory entry
-			await fse.remove(projectSymlink);
-		}
-	}
 
-	await fse.symlink(cacheDir, projectSymlink, "dir");
+	if (!stats) {
+		// Symlink doesn't exist, create it
+		await fse.symlink(cacheDir, projectSymlink, "dir");
+	} else if (stats.isSymbolicLink()) {
+		const currentTarget = await fse.readlink(projectSymlink);
+		if (currentTarget !== cacheDir) {
+			// Replace incorrect symlink with correct one
+			await fse.remove(projectSymlink);
+			await fse.symlink(cacheDir, projectSymlink, "dir");
+		}
+	} else if (stats.isDirectory()) {
+		// Migrate old cache directory to new location
+		const files = await fse.readdir(projectSymlink);
+		await Promise.all(
+			files.map((file) =>
+				fse.move(path.join(projectSymlink, file), path.join(cacheDir, file), {
+					overwrite: true,
+				}),
+			),
+		);
+		// Remove old directory and create symlink
+		await fse.remove(projectSymlink);
+		await fse.symlink(cacheDir, projectSymlink, "dir");
+	} else {
+		// Remove file or other non-directory entry
+		await fse.remove(projectSymlink);
+		await fse.symlink(cacheDir, projectSymlink, "dir");
+	}
 
 	return projectSymlink;
 }
