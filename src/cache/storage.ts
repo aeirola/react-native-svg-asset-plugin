@@ -4,6 +4,12 @@ import type { AssetData } from "metro";
 import type { Config } from "../config";
 
 /**
+ * Module-level Map to track ongoing symlink creation operations.
+ * Key: projectSymlink path, Value: Promise that resolves to the symlink path
+ */
+const symlinkOperations = new Map<string, Promise<string>>();
+
+/**
  * Returns the directory path where generated assets should be stored. Ensures
  * that it exists.
  */
@@ -11,53 +17,67 @@ export async function getCacheStoragePath(
 	config: Config,
 	assetData: AssetData,
 ): Promise<string> {
-	// Store generated images in separate directories for each source image directory
-	const cacheDir = path.join(
-		config.cacheStorageDir,
-		assetData.httpServerLocation,
-	);
-
-	// Ensure the actual cache directory exists
-	await fse.ensureDir(cacheDir);
-
 	const projectSymlink = path.join(
 		assetData.fileSystemLocation,
 		config.cacheDir,
 	);
 
-	// Ensure symlink points to the cache directory
-	const stats = await lstatIfExists(projectSymlink);
+	// Check if we're already processing this symlink
+	const existingOperation = symlinkOperations.get(projectSymlink);
+	if (existingOperation) {
+		return existingOperation;
+	}
 
-	if (!stats) {
-		// Symlink doesn't exist, create it
-		await fse.symlink(cacheDir, projectSymlink, "dir");
-	} else if (stats.isSymbolicLink()) {
-		const currentTarget = await fse.readlink(projectSymlink);
-		if (currentTarget !== cacheDir) {
-			// Replace incorrect symlink with correct one
+	// Create a new operation for this symlink
+	const operation = (async () => {
+		// Store generated images in separate directories for each source image directory
+		const cacheDir = path.join(
+			config.cacheStorageDir,
+			assetData.httpServerLocation,
+		);
+
+		// Ensure the actual cache directory exists
+		await fse.ensureDir(cacheDir);
+
+		// Ensure symlink points to the cache directory
+		const stats = await lstatIfExists(projectSymlink);
+
+		if (!stats) {
+			// Symlink doesn't exist, create it
+			await fse.symlink(cacheDir, projectSymlink, "dir");
+		} else if (stats.isSymbolicLink()) {
+			const currentTarget = await fse.readlink(projectSymlink);
+			if (currentTarget !== cacheDir) {
+				// Replace incorrect symlink with correct one
+				await fse.remove(projectSymlink);
+				await fse.symlink(cacheDir, projectSymlink, "dir");
+			}
+		} else if (stats.isDirectory()) {
+			// Migrate old cache directory to new location
+			const files = await fse.readdir(projectSymlink);
+			await Promise.all(
+				files.map((file) =>
+					fse.move(path.join(projectSymlink, file), path.join(cacheDir, file), {
+						overwrite: true,
+					}),
+				),
+			);
+			// Remove old directory and create symlink
+			await fse.remove(projectSymlink);
+			await fse.symlink(cacheDir, projectSymlink, "dir");
+		} else {
+			// Remove file or other non-directory entry
 			await fse.remove(projectSymlink);
 			await fse.symlink(cacheDir, projectSymlink, "dir");
 		}
-	} else if (stats.isDirectory()) {
-		// Migrate old cache directory to new location
-		const files = await fse.readdir(projectSymlink);
-		await Promise.all(
-			files.map((file) =>
-				fse.move(path.join(projectSymlink, file), path.join(cacheDir, file), {
-					overwrite: true,
-				}),
-			),
-		);
-		// Remove old directory and create symlink
-		await fse.remove(projectSymlink);
-		await fse.symlink(cacheDir, projectSymlink, "dir");
-	} else {
-		// Remove file or other non-directory entry
-		await fse.remove(projectSymlink);
-		await fse.symlink(cacheDir, projectSymlink, "dir");
-	}
 
-	return projectSymlink;
+		return projectSymlink;
+	})();
+
+	// Store the operation in the Map
+	symlinkOperations.set(projectSymlink, operation);
+
+	return operation;
 }
 
 /**

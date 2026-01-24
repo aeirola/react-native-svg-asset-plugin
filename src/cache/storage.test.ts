@@ -340,5 +340,124 @@ describe("storage", () => {
 				expect(cache2Exists).toBe(true);
 			});
 		});
+
+		describe("concurrent calls", () => {
+			it("handles concurrent calls to the same directory", async () => {
+				const config = createConfig();
+				const assetData = createAssetData(projectDir);
+
+				// Make multiple concurrent calls
+				const results = await Promise.all([
+					getCacheStoragePath(config, assetData),
+					getCacheStoragePath(config, assetData),
+					getCacheStoragePath(config, assetData),
+					getCacheStoragePath(config, assetData),
+					getCacheStoragePath(config, assetData),
+				]);
+
+				// All results should be the same
+				const expectedPath = path.join(projectDir, ".png-cache");
+				for (const result of results) {
+					expect(result).toBe(expectedPath);
+				}
+
+				// Symlink should exist and be valid
+				const stats = await fse.lstat(expectedPath);
+				expect(stats.isSymbolicLink()).toBe(true);
+
+				const target = await fse.readlink(expectedPath);
+				const expectedCacheDir = getExpectedCacheDir(assetData);
+				expect(target).toBe(expectedCacheDir);
+			});
+
+			it("handles concurrent calls during directory migration", async () => {
+				const config = createConfig();
+				const assetData = createAssetData(projectDir);
+				const oldCacheDir = path.join(projectDir, ".png-cache");
+				const expectedCacheDir = getExpectedCacheDir(assetData);
+
+				// Create old cache directory with files
+				await fse.ensureDir(oldCacheDir);
+				await fse.writeFile(path.join(oldCacheDir, "file1.png"), "content1");
+				await fse.writeFile(path.join(oldCacheDir, "file2.png"), "content2");
+				await fse.writeFile(path.join(oldCacheDir, "file3.png"), "content3");
+
+				// Make multiple concurrent calls during migration
+				const results = await Promise.all([
+					getCacheStoragePath(config, assetData),
+					getCacheStoragePath(config, assetData),
+					getCacheStoragePath(config, assetData),
+					getCacheStoragePath(config, assetData),
+				]);
+
+				// All results should be the same
+				const expectedPath = path.join(projectDir, ".png-cache");
+				for (const result of results) {
+					expect(result).toBe(expectedPath);
+				}
+
+				// Should be a symlink now
+				const stats = await fse.lstat(expectedPath);
+				expect(stats.isSymbolicLink()).toBe(true);
+
+				// All files should have been migrated
+				const file1Exists = await fse.pathExists(
+					path.join(expectedCacheDir, "file1.png"),
+				);
+				const file2Exists = await fse.pathExists(
+					path.join(expectedCacheDir, "file2.png"),
+				);
+				const file3Exists = await fse.pathExists(
+					path.join(expectedCacheDir, "file3.png"),
+				);
+				expect(file1Exists).toBe(true);
+				expect(file2Exists).toBe(true);
+				expect(file3Exists).toBe(true);
+			});
+
+			it("handles concurrent calls to different directories", async () => {
+				const config = createConfig();
+				const projectDir1 = path.join(tmpDir, "project1");
+				const projectDir2 = path.join(tmpDir, "project2");
+				await fse.ensureDir(projectDir1);
+				await fse.ensureDir(projectDir2);
+
+				const assetData1 = createAssetData(projectDir1, {
+					httpServerLocation: "/assets/dir1",
+				});
+				const assetData2 = createAssetData(projectDir2, {
+					httpServerLocation: "/assets/dir2",
+				});
+
+				// Make concurrent calls to different directories
+				const results = await Promise.all([
+					getCacheStoragePath(config, assetData1),
+					getCacheStoragePath(config, assetData2),
+					getCacheStoragePath(config, assetData1),
+					getCacheStoragePath(config, assetData2),
+					getCacheStoragePath(config, assetData1),
+					getCacheStoragePath(config, assetData2),
+				]);
+
+				// Check all results for dir1
+				const expectedPath1 = path.join(projectDir1, ".png-cache");
+				expect(results[0]).toBe(expectedPath1);
+				expect(results[2]).toBe(expectedPath1);
+				expect(results[4]).toBe(expectedPath1);
+
+				// Check all results for dir2
+				const expectedPath2 = path.join(projectDir2, ".png-cache");
+				expect(results[1]).toBe(expectedPath2);
+				expect(results[3]).toBe(expectedPath2);
+				expect(results[5]).toBe(expectedPath2);
+
+				// Both symlinks should exist and be valid
+				const stats1 = await fse.lstat(expectedPath1);
+				expect(stats1.isSymbolicLink()).toBe(true);
+
+				const stats2 = await fse.lstat(expectedPath2);
+				expect(stats2.isSymbolicLink()).toBe(true);
+			});
+		});
 	});
 });
