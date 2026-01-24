@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+import os from "node:os";
 import path from "node:path";
 import type { MetroConfig } from "metro";
 import type { PngOptions } from "sharp";
@@ -5,6 +7,7 @@ import * as fsUtils from "./utils/fs";
 
 export interface Config {
 	cacheDir: string;
+	cacheStorageDir: string;
 	scales: number[];
 	output: PngOptions;
 	ignoreRegex: RegExp | null;
@@ -13,6 +16,16 @@ export interface Config {
 
 const defaultConfig: Config = {
 	cacheDir: ".png-cache",
+	cacheStorageDir: path.join(
+		os.tmpdir(),
+		"react-native-svg-asset-plugin-cache",
+		// Use an 8 character hash of the project directory to avoid collisions
+		crypto
+			.createHash("md5")
+			.update(process.cwd())
+			.digest("hex")
+			.substring(0, 8),
+	),
 	scales: [1, 2, 3],
 	output: {},
 	ignoreRegex: null,

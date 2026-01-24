@@ -19,6 +19,10 @@ describe("cache", () => {
 
 	const config = {
 		cacheDir: ".png-cache",
+		cacheStorageDir: path.join(
+			os.tmpdir(),
+			"react-native-svg-asset-plugin-test-cache",
+		),
 		scales: [1, 2, 3],
 		output: {},
 		ignoreRegex: null,

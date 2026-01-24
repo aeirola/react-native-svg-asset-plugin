@@ -58,13 +58,11 @@ async function convertSvg(assetData: AssetData): Promise<AssetData> {
 	const inputFileScale = assetData.scales[0];
 
 	const config = await asyncConfig;
-	const outputDirectory = path.join(
-		assetData.fileSystemLocation,
-		config.cacheDir,
-	);
-	const outputName = `${assetData.name}-${assetData.hash}`;
 
-	await fse.ensureDir(outputDirectory);
+	// Get the output directory where generated assets should be placed
+	const outputDirectory = await cache.getCacheStoragePath(config, assetData);
+
+	const outputName = `${assetData.name}-${assetData.hash}`;
 	const imageLoader = createimageLoader(inputFilePath);
 	const outputImages = await Promise.all(
 		config.scales.map((imageScale) =>
