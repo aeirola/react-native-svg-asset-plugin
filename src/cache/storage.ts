@@ -11,7 +11,11 @@ export async function getCacheStoragePath(
 	config: Config,
 	assetData: AssetData,
 ): Promise<string> {
-	const cacheDir = config.cacheStorageDir;
+	// Store generated images in separate directories for each source image directory
+	const cacheDir = path.join(
+		config.cacheStorageDir,
+		assetData.httpServerLocation,
+	);
 
 	// Ensure the actual cache directory exists
 	await fse.ensureDir(cacheDir);

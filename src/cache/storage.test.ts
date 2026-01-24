@@ -52,6 +52,9 @@ describe("storage", () => {
 			...overrides,
 		}) as AssetData;
 
+	const getExpectedCacheDir = (assetData: AssetData): string =>
+		path.join(cacheStorageDir, assetData.httpServerLocation);
+
 	describe("getCacheStoragePath", () => {
 		describe("no previous cache exists", () => {
 			it("creates cache storage directory", async () => {
@@ -60,7 +63,8 @@ describe("storage", () => {
 
 				await getCacheStoragePath(config, assetData);
 
-				const cacheExists = await fse.pathExists(cacheStorageDir);
+				const expectedCacheDir = getExpectedCacheDir(assetData);
+				const cacheExists = await fse.pathExists(expectedCacheDir);
 				expect(cacheExists).toBe(true);
 			});
 
@@ -80,7 +84,8 @@ describe("storage", () => {
 				expect(stats.isSymbolicLink()).toBe(true);
 
 				const target = await fse.readlink(symlinkPath);
-				expect(target).toBe(cacheStorageDir);
+				const expectedCacheDir = getExpectedCacheDir(assetData);
+				expect(target).toBe(expectedCacheDir);
 			});
 
 			it("returns the symlink path", async () => {
@@ -99,10 +104,11 @@ describe("storage", () => {
 				const config = createConfig();
 				const assetData = createAssetData(projectDir);
 				const symlinkPath = path.join(projectDir, ".png-cache");
+				const expectedCacheDir = getExpectedCacheDir(assetData);
 
 				// Create symlink manually
-				await fse.ensureDir(cacheStorageDir);
-				await fse.symlink(cacheStorageDir, symlinkPath, "dir");
+				await fse.ensureDir(expectedCacheDir);
+				await fse.symlink(expectedCacheDir, symlinkPath, "dir");
 
 				const result = await getCacheStoragePath(config, assetData);
 
@@ -110,7 +116,7 @@ describe("storage", () => {
 
 				// Verify symlink still points to correct location
 				const target = await fse.readlink(symlinkPath);
-				expect(target).toBe(cacheStorageDir);
+				expect(target).toBe(expectedCacheDir);
 			});
 
 			it("recreates symlink when pointing to wrong location", async () => {
@@ -118,6 +124,7 @@ describe("storage", () => {
 				const assetData = createAssetData(projectDir);
 				const symlinkPath = path.join(projectDir, ".png-cache");
 				const wrongTarget = path.join(tmpDir, "wrong-cache");
+				const expectedCacheDir = getExpectedCacheDir(assetData);
 
 				// Create symlink pointing to wrong location
 				await fse.ensureDir(wrongTarget);
@@ -129,7 +136,7 @@ describe("storage", () => {
 
 				// Verify symlink now points to correct location
 				const target = await fse.readlink(symlinkPath);
-				expect(target).toBe(cacheStorageDir);
+				expect(target).toBe(expectedCacheDir);
 			});
 
 			it("preserves symlink across multiple calls", async () => {
@@ -152,6 +159,7 @@ describe("storage", () => {
 				const config = createConfig();
 				const assetData = createAssetData(projectDir);
 				const oldCacheDir = path.join(projectDir, ".png-cache");
+				const expectedCacheDir = getExpectedCacheDir(assetData);
 
 				// Create old cache directory with files
 				await fse.ensureDir(oldCacheDir);
@@ -166,21 +174,21 @@ describe("storage", () => {
 
 				// Files should be moved to new location
 				const file1Exists = await fse.pathExists(
-					path.join(cacheStorageDir, "file1.png"),
+					path.join(expectedCacheDir, "file1.png"),
 				);
 				const file2Exists = await fse.pathExists(
-					path.join(cacheStorageDir, "file2.png"),
+					path.join(expectedCacheDir, "file2.png"),
 				);
 				expect(file1Exists).toBe(true);
 				expect(file2Exists).toBe(true);
 
 				// Verify file contents were preserved
 				const file1Content = await fse.readFile(
-					path.join(cacheStorageDir, "file1.png"),
+					path.join(expectedCacheDir, "file1.png"),
 					"utf-8",
 				);
 				const file2Content = await fse.readFile(
-					path.join(cacheStorageDir, "file2.png"),
+					path.join(expectedCacheDir, "file2.png"),
 					"utf-8",
 				);
 				expect(file1Content).toBe("content1");
@@ -191,6 +199,7 @@ describe("storage", () => {
 				const config = createConfig();
 				const assetData = createAssetData(projectDir);
 				const oldCacheDir = path.join(projectDir, ".png-cache");
+				const expectedCacheDir = getExpectedCacheDir(assetData);
 
 				// Create empty old cache directory
 				await fse.ensureDir(oldCacheDir);
@@ -202,18 +211,19 @@ describe("storage", () => {
 				expect(stats.isSymbolicLink()).toBe(true);
 
 				const target = await fse.readlink(result);
-				expect(target).toBe(cacheStorageDir);
+				expect(target).toBe(expectedCacheDir);
 			});
 
 			it("overwrites existing files in new location during migration", async () => {
 				const config = createConfig();
 				const assetData = createAssetData(projectDir);
 				const oldCacheDir = path.join(projectDir, ".png-cache");
+				const expectedCacheDir = getExpectedCacheDir(assetData);
 
 				// Create new cache location with existing file
-				await fse.ensureDir(cacheStorageDir);
+				await fse.ensureDir(expectedCacheDir);
 				await fse.writeFile(
-					path.join(cacheStorageDir, "file.png"),
+					path.join(expectedCacheDir, "file.png"),
 					"old-content",
 				);
 
@@ -225,7 +235,7 @@ describe("storage", () => {
 
 				// File should be overwritten with new content
 				const fileContent = await fse.readFile(
-					path.join(cacheStorageDir, "file.png"),
+					path.join(expectedCacheDir, "file.png"),
 					"utf-8",
 				);
 				expect(fileContent).toBe("new-content");
@@ -237,6 +247,7 @@ describe("storage", () => {
 				const config = createConfig();
 				const assetData = createAssetData(projectDir);
 				const filePath = path.join(projectDir, ".png-cache");
+				const expectedCacheDir = getExpectedCacheDir(assetData);
 
 				// Create a regular file at the cache location
 				await fse.writeFile(filePath, "some file content");
@@ -248,7 +259,7 @@ describe("storage", () => {
 				expect(stats.isSymbolicLink()).toBe(true);
 
 				const target = await fse.readlink(result);
-				expect(target).toBe(cacheStorageDir);
+				expect(target).toBe(expectedCacheDir);
 			});
 		});
 
@@ -285,11 +296,48 @@ describe("storage", () => {
 				expect(result1).toBe(path.join(projectDir1, ".png-cache"));
 				expect(result2).toBe(path.join(projectDir2, ".png-cache"));
 
-				// Both should point to the same cache storage
+				// Both should point to the same cache storage (with httpServerLocation subdirectory)
+				const expectedCacheDir = getExpectedCacheDir(assetData1);
 				const target1 = await fse.readlink(result1);
 				const target2 = await fse.readlink(result2);
-				expect(target1).toBe(cacheStorageDir);
-				expect(target2).toBe(cacheStorageDir);
+				expect(target1).toBe(expectedCacheDir);
+				expect(target2).toBe(expectedCacheDir);
+			});
+
+			it("stores files from different source directories in separate cache directories", async () => {
+				const config = createConfig();
+				const projectDir1 = path.join(tmpDir, "project1");
+				const projectDir2 = path.join(tmpDir, "project2");
+				await fse.ensureDir(projectDir1);
+				await fse.ensureDir(projectDir2);
+
+				// Create asset data with different httpServerLocation values
+				const assetData1 = createAssetData(projectDir1, {
+					httpServerLocation: "/assets/images",
+				});
+				const assetData2 = createAssetData(projectDir2, {
+					httpServerLocation: "/assets/icons",
+				});
+
+				const result1 = await getCacheStoragePath(config, assetData1);
+				const result2 = await getCacheStoragePath(config, assetData2);
+
+				// Symlinks should point to different cache subdirectories
+				const target1 = await fse.readlink(result1);
+				const target2 = await fse.readlink(result2);
+
+				const expectedCacheDir1 = getExpectedCacheDir(assetData1);
+				const expectedCacheDir2 = getExpectedCacheDir(assetData2);
+
+				expect(target1).toBe(expectedCacheDir1);
+				expect(target2).toBe(expectedCacheDir2);
+				expect(target1).not.toBe(target2);
+
+				// Verify both cache directories exist
+				const cache1Exists = await fse.pathExists(expectedCacheDir1);
+				const cache2Exists = await fse.pathExists(expectedCacheDir2);
+				expect(cache1Exists).toBe(true);
+				expect(cache2Exists).toBe(true);
 			});
 		});
 	});
