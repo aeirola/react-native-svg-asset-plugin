@@ -8,6 +8,7 @@ import * as fsUtils from "./utils/fs";
 export interface Config {
 	cacheDir: string;
 	cacheStorageDir: string;
+	projectRoot: string;
 	scales: number[];
 	output: PngOptions;
 	ignoreRegex: RegExp | null;
@@ -26,6 +27,7 @@ const defaultConfig: Config = {
 			.digest("hex")
 			.substring(0, 8),
 	),
+	projectRoot: process.cwd(),
 	scales: [1, 2, 3],
 	output: {},
 	ignoreRegex: null,
