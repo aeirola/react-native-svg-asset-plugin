@@ -23,6 +23,7 @@ describe("cache", () => {
 			os.tmpdir(),
 			"react-native-svg-asset-plugin-test-cache",
 		),
+		projectRoot: process.cwd(),
 		scales: [1, 2, 3],
 		output: {},
 		ignoreRegex: null,
