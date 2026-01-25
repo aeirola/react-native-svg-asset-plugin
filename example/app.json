@@ -5,6 +5,12 @@
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"userInterfaceStyle": "light",
-		"newArchEnabled": true
+		"newArchEnabled": true,
+		"android": {
+			"package": "com.anonymous.example"
+		},
+		"ios": {
+			"bundleIdentifier": "com.anonymous.example"
+		}
 	}
 }

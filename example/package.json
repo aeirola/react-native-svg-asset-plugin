@@ -6,7 +6,9 @@
 		"postinstall": "install-local",
 		"start": "expo start",
 		"android": "expo run:android",
-		"ios": "expo run:ios"
+		"android:production": "expo run:android --variant release --no-bundler",
+		"ios": "expo run:ios",
+		"ios:production": "expo run:ios --configuration Release --no-bundler"
 	},
 	"dependencies": {
 		"@expo/metro-config": "~54.0.2",
