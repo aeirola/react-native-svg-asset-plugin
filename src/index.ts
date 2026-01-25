@@ -14,7 +14,65 @@ type AssetDataPlugin = (assetData: AssetData) => AssetData | Promise<AssetData>;
 
 const asyncConfig: Promise<Config> = config.load();
 
+/**
+ * Main function called by the metro bundler when processing an asset. This
+ * plugin renders SVG assets into PNG files that can be used natively by
+ * React Native apps.
+ *
+ * Note that metro caches the results of this function, so that multiple uses
+ * of the same asset will not cause multiple calls to this function. This also
+ * means that return values for old versions of a source file might be cached,
+ * leading to metro expecting previously rendered PNG files to exist for
+ * example when undoing changes to a source SVG file.
+ *
+ * @param assetData Data on the required asset provided by the metro bundler.
+ * 				See below for examples.
+ * @returns Modified asset data that points to the rendered PNG files.
+ */
 async function reactNativeSvgAssetPlugin(
+	/**
+	 * @example // Metro and React Native
+	 * {
+	 * 	 __packager_asset: true,
+	 * 	 fileSystemLocation: '/src/app/images',
+	 * 	 httpServerLocation: '/assets/images',
+	 * 	 width: 100,
+	 * 	 height: 100,
+	 * 	 scales: [ 1 ],
+	 * 	 files: [ '/src/app/images/icon.svg' ],
+	 * 	 hash: '2f361af1b5dee4c16c567c61d8623df0',
+	 * 	 name: 'icon',
+	 * 	 type: 'svg'
+	 * }
+	 *
+	 * @example // Expo dev build
+	 * {
+	 *   __packager_asset: true,
+	 *   fileSystemLocation: '/src/app/images',
+	 *   httpServerLocation: '/assets/?unstable_path=./images',
+	 *   width: 200,
+	 *   height: 200,
+	 *   scales: [ 1 ],
+	 *   files: [ '/src/app/images/icon.svg' ],
+	 *   hash: '2f361af1b5dee4c16c567c61d8623df0',
+	 *   name: 'icon',
+	 *   type: 'svg'
+	 * }
+	 *
+	 * @example // Expo production build
+	 * {
+	 *   __packager_asset: true,
+	 *   fileSystemLocation: '/src/app/images',
+	 *   httpServerLocation: '/assets?export_path=/assets/images',
+	 *   width: 200,
+	 *   height: 200,
+	 *   scales: [ 1 ],
+	 *   files: [ '/src/app/images/icon.svg' ],
+	 *   hash: '2f361af1b5dee4c16c567c61d8623df0',
+	 *   name: 'icon',
+	 *   type: 'svg'
+	 * }
+	 */
 	assetData: AssetData,
 ): Promise<AssetData> {
 	const filePath = assetData.files[0] || "";
