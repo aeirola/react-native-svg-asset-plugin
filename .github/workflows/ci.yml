@@ -40,6 +40,7 @@ jobs:
       - run: npm ci
       - run: npm install --no-save metro@${{ matrix.metro_version }}
       - run: npm test
+      - run: npm pack --dry-run
       - uses: actions/upload-artifact@v5
         with:
           name: integration-test-png-cache-${{ matrix.os }}-node${{ matrix.node_version }}-metro${{ matrix.metro_version }}
