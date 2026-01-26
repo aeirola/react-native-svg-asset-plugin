@@ -6,8 +6,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
 
 jobs:
   test:
@@ -86,20 +84,3 @@ jobs:
         working-directory: ./example/
       - run: npx expo export
         working-directory: ./example/
-
-  publish:
-    needs: test
-    runs-on: ubuntu-latest
-    name: Publish
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
-        with:
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - if: github.event_name != 'push' || !startsWith(github.event.ref, 'refs/tags')
-        run: npm publish --dry-run
-      - if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
