@@ -9,7 +9,7 @@ import * as sharp from "./sharp";
 import * as fsUtils from "./utils/fs";
 import * as funcUtils from "./utils/func";
 
-/** Should match https://github.com/facebook/metro/blob/0.83.3/packages/metro/src/Assets.js#L89 */
+/** Should match https://github.com/facebook/metro/blob/v0.83.3/packages/metro/src/Assets.js#L89 */
 type AssetDataPlugin = (assetData: AssetData) => AssetData | Promise<AssetData>;
 
 const asyncConfig: Promise<Config> = config.load();
