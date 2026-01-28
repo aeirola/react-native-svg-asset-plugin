@@ -26,11 +26,20 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/aeirola/react-native-svg-asset-plugin.git"
+		"url": "git+https://github.com/aeirola/react-native-svg-asset-plugin.git"
 	},
 	"dependencies": {
 		"fs-extra": ">=3.0.0",
 		"sharp": ">=0.26.0"
+	},
+	"peerDependencies": {
+		"expo": ">=41.0.0",
+		"metro": ">=0.44.0"
+	},
+	"peerDependenciesMeta": {
+		"expo": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.6",
