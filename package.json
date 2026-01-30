@@ -20,7 +20,8 @@
 		"test:unit": "vitest run"
 	},
 	"files": [
-		"lib/"
+		"lib/",
+		"logo.svg"
 	],
 	"author": "Axel Havukangas <axel@havukangas.fi>",
 	"license": "MIT",
