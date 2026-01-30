@@ -3,8 +3,8 @@ import { Image, StyleSheet, Text, View } from "react-native";
 export default function App() {
 	return (
 		<View style={styles.container}>
-			<Image source={require("./assets/React-icon.svg")} />
-			<Text>SVG image rendered in the app!</Text>
+			<Image source={require("./assets/logo.svg")} />
+			<Text>SVG image loaded in the app!</Text>
 		</View>
 	);
 }
@@ -15,5 +15,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "#fff",
 		alignItems: "center",
 		justifyContent: "center",
+		gap: 20,
 	},
 });
